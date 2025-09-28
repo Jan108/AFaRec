@@ -1,0 +1,2 @@
+# fiftyone==1.7.2
+# deepface==0.0.95
