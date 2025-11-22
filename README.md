@@ -66,3 +66,7 @@ Ich will das machen, mit welchen Ansätzen, detaillierter als jetzt
 -[ ] make data available
 -[x] Workspace should be accessible everywhere! → LSW/Home/Uni
 -[ ] test Lena's GPU?
+-[ ] my own dataset
+  - find out which annotations I need -> pet position for animal detection (coco, openimagesv7); pet face pos for pet face detection (self annotate openimagesv7?); multiple pet faces for an individual for pet recognition (pet face)
+  - (find a strategy to get images of individual pets) -> only needed for immich not for thesis
+  - plan for annotation of images based of openimagesv7 to annotate where the head is

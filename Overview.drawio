@@ -1,6 +1,6 @@
-<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.1.1 Chrome/132.0.6834.210 Electron/34.3.3 Safari/537.36" version="26.1.1">
+<mxfile host="drawio-plugin" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" modified="2025-11-22T16:10:11.313Z" version="22.1.22" etag="Ltb2zq9hrfU7HrBlfxJ-" type="embed">
   <diagram name="Seite-1" id="Gn8NRnyDvw1OMjqagLZZ">
-    <mxGraphModel dx="2514" dy="982" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1908" dy="760" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -134,7 +134,7 @@
           <mxGeometry x="30" y="730" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="bS0enJy4nNdBtHU8hBYB-43" value="No face" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
-          <mxGeometry x="400" y="740" width="120" height="60" as="geometry" />
+          <mxGeometry x="400" y="730" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="bS0enJy4nNdBtHU8hBYB-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="bS0enJy4nNdBtHU8hBYB-48" target="bS0enJy4nNdBtHU8hBYB-51" edge="1">
           <mxGeometry relative="1" as="geometry" />
@@ -154,22 +154,22 @@
         <mxCell id="bS0enJy4nNdBtHU8hBYB-58" value="Fututre research possible: body / Fur" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="1" vertex="1">
           <mxGeometry x="250" y="180" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="iXylO1-zmWy0vhA1gqZe-1" value="PetFace:&lt;div&gt;- Cat&lt;/div&gt;&lt;div&gt;- Chimp&lt;/div&gt;&lt;div&gt;- Chinchilla&lt;/div&gt;&lt;div&gt;- Degus&lt;/div&gt;&lt;div&gt;- Dog&lt;/div&gt;&lt;div&gt;- Ferret&lt;/div&gt;&lt;div&gt;- Guineapig&lt;/div&gt;&lt;div&gt;- Hamster&lt;/div&gt;&lt;div&gt;- Hedgehog&lt;/div&gt;&lt;div&gt;- Javasparrow&lt;/div&gt;&lt;div&gt;- Parakeet&lt;/div&gt;&lt;div&gt;- Pig&lt;/div&gt;&lt;div&gt;- Rabbit&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="iXylO1-zmWy0vhA1gqZe-1" value="PetFace:&lt;div&gt;- Cat&lt;/div&gt;&lt;div&gt;- Chimp&lt;/div&gt;&lt;div&gt;- Chinchilla&lt;/div&gt;&lt;div&gt;- Degus&lt;/div&gt;&lt;div&gt;- Dog&lt;/div&gt;&lt;div&gt;- Ferret&lt;/div&gt;&lt;div&gt;- Guineapig&lt;/div&gt;&lt;div&gt;- Hamster&lt;/div&gt;&lt;div&gt;- Hedgehog&lt;/div&gt;&lt;div&gt;- Javasparrow&lt;/div&gt;&lt;div&gt;- Parakeet&lt;/div&gt;&lt;div&gt;- Pig&lt;/div&gt;&lt;div&gt;- Rabbit&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-130" y="880" width="120" height="210" as="geometry" />
         </mxCell>
-        <mxCell id="iXylO1-zmWy0vhA1gqZe-2" value="Coco:&lt;div&gt;- Bird&lt;/div&gt;&lt;div&gt;- Cat&lt;/div&gt;&lt;div&gt;- Dog&lt;/div&gt;&lt;div&gt;- Horse&lt;/div&gt;&lt;div&gt;- Sheep&lt;/div&gt;&lt;div&gt;- Cow&lt;/div&gt;&lt;div&gt;- elephant&lt;/div&gt;&lt;div&gt;- Bear&lt;/div&gt;&lt;div&gt;- Zebra&lt;/div&gt;&lt;div&gt;- Giraffe&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="iXylO1-zmWy0vhA1gqZe-2" value="Coco:&lt;div&gt;- Bird&lt;/div&gt;&lt;div&gt;- Cat&lt;/div&gt;&lt;div&gt;- Dog&lt;/div&gt;&lt;div&gt;- Horse&lt;/div&gt;&lt;div&gt;- Sheep&lt;/div&gt;&lt;div&gt;- Cow&lt;/div&gt;&lt;div&gt;- elephant&lt;/div&gt;&lt;div&gt;- Bear&lt;/div&gt;&lt;div&gt;- Zebra&lt;/div&gt;&lt;div&gt;- Giraffe&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="30" y="880" width="120" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="iXylO1-zmWy0vhA1gqZe-3" value="Open Image:&lt;div&gt;- has many animals (-)&lt;/div&gt;&lt;div&gt;- has categories (+)&lt;/div&gt;&lt;div&gt;+ Reptile&lt;/div&gt;&lt;div&gt;+ Bird&lt;/div&gt;&lt;div&gt;- Dog&lt;/div&gt;&lt;div&gt;- Cat&lt;/div&gt;&lt;div&gt;- Horse&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="iXylO1-zmWy0vhA1gqZe-3" value="Open Image:&lt;div&gt;- has many animals (-)&lt;/div&gt;&lt;div&gt;- has categories (+)&lt;/div&gt;&lt;div&gt;+ Reptile&lt;/div&gt;&lt;div&gt;+ Bird&lt;/div&gt;&lt;div&gt;- Dog&lt;/div&gt;&lt;div&gt;- Cat&lt;/div&gt;&lt;div&gt;- Horse&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="190" y="880" width="130" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="iXylO1-zmWy0vhA1gqZe-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="iXylO1-zmWy0vhA1gqZe-5" target="iXylO1-zmWy0vhA1gqZe-3">
+        <mxCell id="iXylO1-zmWy0vhA1gqZe-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="iXylO1-zmWy0vhA1gqZe-5" target="iXylO1-zmWy0vhA1gqZe-3" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="iXylO1-zmWy0vhA1gqZe-5" value="Needs rework&lt;div&gt;and better categorization&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+        <mxCell id="iXylO1-zmWy0vhA1gqZe-5" value="Needs rework&lt;div&gt;and better categorization&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
           <mxGeometry x="380" y="930" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="iXylO1-zmWy0vhA1gqZe-6" value="Favorite Pets (Mistral):&lt;div&gt;- dog&lt;/div&gt;&lt;div&gt;- cat&lt;/div&gt;&lt;div&gt;- small animals (rabbit, hamster, ...)&lt;/div&gt;&lt;div&gt;- birds&lt;/div&gt;&lt;div&gt;- fish&lt;/div&gt;&lt;div&gt;- reptile&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="iXylO1-zmWy0vhA1gqZe-6" value="Favorite Pets (Mistral):&lt;div&gt;- dog&lt;/div&gt;&lt;div&gt;- cat&lt;/div&gt;&lt;div&gt;- small animals (rabbit, hamster, ...)&lt;/div&gt;&lt;div&gt;- birds&lt;/div&gt;&lt;div&gt;- fish&lt;/div&gt;&lt;div&gt;- reptile&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="550" y="890" width="120" height="130" as="geometry" />
         </mxCell>
       </root>
