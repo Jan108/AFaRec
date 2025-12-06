@@ -26,7 +26,6 @@ def load_open_image() -> None:
     )
     session = fo.launch_app(dataset)
     session.wait()
-    dataset.
 
 
 def load_coco() -> None:

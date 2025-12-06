@@ -53,7 +53,6 @@ Ich will das machen, mit welchen Ansätzen, detaillierter als jetzt
 
 
 # ToDo
--[x] specify workflow with details (draw.io)
 -[ ] AnimalCLEF 2025
         https://ceur-ws.org/Vol-4038/paper_231.pdf -> Overview Paper
         https://ceur-ws.org/Vol-4038/paper_240.pdf
@@ -64,9 +63,9 @@ Ich will das machen, mit welchen Ansätzen, detaillierter als jetzt
         https://ceur-ws.org/Vol-4038/paper_258.pdf
 -[ ] Code Boilerplate for project
 -[ ] make data available
--[x] Workspace should be accessible everywhere! → LSW/Home/Uni
--[ ] test Lena's GPU?
 -[ ] my own dataset
   - find out which annotations I need -> pet position for animal detection (coco, openimagesv7); pet face pos for pet face detection (self annotate openimagesv7?); multiple pet faces for an individual for pet recognition (pet face)
-  - (find a strategy to get images of individual pets) -> only needed for immich not for thesis
   - plan for annotation of images based of openimagesv7 to annotate where the head is
+- Next steps:
+  - send mail to profs
+  - start with animal detection
