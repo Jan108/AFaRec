@@ -69,3 +69,4 @@ Ich will das machen, mit welchen Ansätzen, detaillierter als jetzt
 - Next steps:
   - send mail to profs
   - start with animal detection
+    - next train: https://docs.ultralytics.com/datasets/detect/open-images-v7/#how-do-i-train-a-yolo11-model-on-the-open-images-v7-dataset
