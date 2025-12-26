@@ -2,3 +2,4 @@
 # deepface==0.0.95
 ultralytics
 fiftyone
+pymongo
