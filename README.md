@@ -83,9 +83,9 @@ Ich will das machen, mit welchen Ansätzen, detaillierter als jetzt
 
 
 
-| name        | APval 50:95 COCO | Link                                                                           |
-|-------------|------------------|--------------------------------------------------------------------------------|
-| yolo v11s   | 47,0             | https://docs.ultralytics.com/models/yolo11/#performance-metrics                |
-| yolo v12s   | 48,0             | https://docs.ultralytics.com/models/yolo12/#detection-performance-coco-val2017 |
-| RT-DETRv2-S | 48,1             | https://github.com/lyuwenyu/RT-DETR/tree/main/rtdetrv2_pytorch                 |
-| RF-DETR-S   | 53,0             | https://github.com/roboflow/rf-detr                                            |
+| name        | APval 50:95 COCO | Link                                                                                                                      |
+|-------------|------------------|---------------------------------------------------------------------------------------------------------------------------|
+| yolo v11s   | 47,0             | https://docs.ultralytics.com/models/yolo11/#performance-metrics                                                           |
+| yolo v12s   | 48,0             | https://docs.ultralytics.com/models/yolo12/#detection-performance-coco-val2017                                            |
+| RT-DETRv2-S | 48,1             | https://github.com/lyuwenyu/RT-DETR/tree/main/rtdetrv2_pytorch https://docs.ultralytics.com/models/rtdetr/#usage-examples |
+| RF-DETR-S   | 53,0             | https://github.com/roboflow/rf-detr https://rfdetr.roboflow.com/learn/train/                                              |
