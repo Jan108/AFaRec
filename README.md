@@ -69,4 +69,23 @@ Ich will das machen, mit welchen Ansätzen, detaillierter als jetzt
 - Next steps:
   - send mail to profs
   - start with animal detection
-    - next train: https://docs.ultralytics.com/datasets/detect/open-images-v7/#how-do-i-train-a-yolo11-model-on-the-open-images-v7-dataset
+      - plan what to compare: yolo v11s on oai, yolo v11s default, different model?
+        - see table below
+        - run OpenAnimalImages test split on all models
+        - For each model train on OAI, so that there are then 2 models, fine tuned/standart
+        - results in 8 models
+      - how to eval this? -> build custom evaluation based on wanted task (image in, class with pos out or not found)
+        - can fiftyone do this? or do I need to build my own pipeline (inference with image path in; predictions out)
+        - ultralytics can do it for yolo and rt-detr: https://docs.ultralytics.com/modes/val/
+        - needs to eval on OAI test (is this used elsewhere?) and if it says there is non present
+      - train and eval those models
+      - write it down
+
+
+
+| name        | APval 50:95 COCO | Link                                                                           |
+|-------------|------------------|--------------------------------------------------------------------------------|
+| yolo v11s   | 47,0             | https://docs.ultralytics.com/models/yolo11/#performance-metrics                |
+| yolo v12s   | 48,0             | https://docs.ultralytics.com/models/yolo12/#detection-performance-coco-val2017 |
+| RT-DETRv2-S | 48,1             | https://github.com/lyuwenyu/RT-DETR/tree/main/rtdetrv2_pytorch                 |
+| RF-DETR-S   | 53,0             | https://github.com/roboflow/rf-detr                                            |
