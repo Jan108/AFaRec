@@ -1,5 +1,13 @@
-# fiftyone==1.7.2
 # deepface==0.0.95
 ultralytics
 fiftyone
 pymongo
+transformers[torch]
+timm
+torchvision
+Pillow
+numpy
+datasets
+accelerate
+albumentations
+torchmetrics

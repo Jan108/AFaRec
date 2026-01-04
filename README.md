@@ -83,9 +83,10 @@ Ich will das machen, mit welchen Ansätzen, detaillierter als jetzt
 
 
 
-| name        | APval 50:95 COCO | Link                                                                                                                      |
-|-------------|------------------|---------------------------------------------------------------------------------------------------------------------------|
-| yolo v11s   | 47,0             | https://docs.ultralytics.com/models/yolo11/#performance-metrics                                                           |
-| yolo v12s   | 48,0             | https://docs.ultralytics.com/models/yolo12/#detection-performance-coco-val2017                                            |
-| RT-DETRv2-S | 48,1             | https://github.com/lyuwenyu/RT-DETR/tree/main/rtdetrv2_pytorch https://docs.ultralytics.com/models/rtdetr/#usage-examples |
-| RF-DETR-S   | 53,0             | https://github.com/roboflow/rf-detr https://rfdetr.roboflow.com/learn/train/                                              |
+| name          | APval 50:95 COCO | Link                                                                           |
+|---------------|------------------|--------------------------------------------------------------------------------|
+| yolo v11s     | 47,0             | https://docs.ultralytics.com/models/yolo11/#performance-metrics                |
+| yolo v12s     | 48,0             | https://docs.ultralytics.com/models/yolo12/#detection-performance-coco-val2017 |
+| RT-DETRv2-S   | 48,1             | https://github.com/lyuwenyu/RT-DETR/tree/main/rtdetrv2_pytorch https://colab.research.google.com/github/qubvel/transformers-notebooks/blob/main/notebooks/RT_DETR_v2_finetune_on_a_custom_dataset.ipynb                |
+| RT-DETRv3-R18 | 48,1             | https://github.com/clxia12/RT-DETRv3                                           |
+| RF-DETR-S     | 53,0             | https://github.com/roboflow/rf-detr https://rfdetr.roboflow.com/learn/train/   |

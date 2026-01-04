@@ -10,5 +10,5 @@ def test_mongo_connection():
         return
     except ConnectionFailure as e:
         msg = ("MongoDB connection failed, but FiftyOne needs one. Start the service with: \n"
-              "sudo systemctl start mongodb")
+              "sudo systemctl start mongod")
         raise ConnectionError(msg)

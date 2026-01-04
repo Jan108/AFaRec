@@ -6,7 +6,7 @@ from fiftyone import ViewField as F
 
 import deepface
 
-from .utils import test_mongo_connection
+from utils import test_mongo_connection
 
 
 def _get_open_image_mappings() -> dict[str, list[str]]:
@@ -30,19 +30,27 @@ def _get_open_image_mappings() -> dict[str, list[str]]:
 
 
 def create_open_animal_images() -> None:
-    view = load_open_animal_images()
     for split in ['train', 'validation', 'test']:
+        view = load_open_animal_images(split)
         # Export dataset into the yolo format
+        # view.export(
+        #     dataset_type=fo.types.YOLOv5Dataset,
+        #     label_field="ground_truth",
+        #     export_dir='/mnt/data/afarec/data/OpenAnimalImages',
+        #     classes=list(_get_open_image_mappings().keys()),
+        #     split="val" if split == "validation" else split,
+        #     overwrite=False,
+        # )
         view.export(
-            dataset_type=fo.types.YOLOv5Dataset,
+            dataset_type=fo.types.COCODetectionDataset,
             label_field="ground_truth",
-            export_dir='/mnt/data/afarec/data/OpenAnimalImages',
+            export_dir=f'/mnt/data/afarec/data/OpenAnimalImages_COCO/{split}',
             classes=list(_get_open_image_mappings().keys()),
-            split="val" if split == "validation" else split,
+            # split="val" if split == "validation" else split,
             overwrite=False,
         )
 
-def load_open_animal_images() -> fo.DatasetView:
+def load_open_animal_images(split: str) -> fo.DatasetView:
     dataset = foz.load_zoo_dataset(
         "open-images-v7",
         label_types=["detections"],
@@ -62,7 +70,8 @@ def load_open_animal_images() -> fo.DatasetView:
         classes=['Bird', 'Magpie', 'Woodpecker', 'Blue jay', 'Ostrich', 'Penguin', 'Raven', 'Chicken', 'Eagle', 'Owl',
                  'Duck', 'Canary', 'Goose', 'Swan', 'Falcon', 'Parrot', 'Sparrow', 'Turkey', 'Cat', 'Jaguar (Animal)',
                  'Lynx', 'Tiger', 'Lion', 'Leopard', 'Cheetah', 'Dog', 'Fox', 'Goat', 'Horse', 'Mule', 'Hamster',
-                 'Mouse', 'Rabbit']
+                 'Mouse', 'Rabbit'],
+        split=split,
     )
 
     new_mappings = _get_open_image_mappings()
