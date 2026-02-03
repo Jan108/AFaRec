@@ -61,8 +61,6 @@ Ich will das machen, mit welchen Ansätzen, detaillierter als jetzt
         https://ceur-ws.org/Vol-4038/paper_251.pdf
         https://ceur-ws.org/Vol-4038/paper_253.pdf
         https://ceur-ws.org/Vol-4038/paper_258.pdf
--[ ] Code Boilerplate for project
--[ ] make data available
 -[ ] my own dataset
   - find out which annotations I need -> pet position for animal detection (coco, openimagesv7); pet face pos for pet face detection (self annotate openimagesv7?); multiple pet faces for an individual for pet recognition (pet face)
   - plan for annotation of images based of openimagesv7 to annotate where the head is
@@ -81,7 +79,16 @@ Ich will das machen, mit welchen Ansätzen, detaillierter als jetzt
       - train and eval those models
       - write it down
 
+Sonntag:
+    - Motivation schreiben
+    - RQ schreiben
+    - Overview unified System schreiben
 
+Next Week:
+    - Mail Profs Anmeldung / Termin
+    - RT-Detr v1 rechnen
+    - Dataset Annotation Plan / Umsetzen
+    - Object detection schreiben
 
 | name          | APval 50:95 COCO | Link                                                                           |
 |---------------|------------------|--------------------------------------------------------------------------------|
