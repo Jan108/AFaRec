@@ -11,3 +11,4 @@ datasets
 accelerate
 albumentations
 torchmetrics
+rfdetr

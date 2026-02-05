@@ -79,13 +79,23 @@ Ich will das machen, mit welchen Ansätzen, detaillierter als jetzt
       - train and eval those models
       - write it down
 
-Sonntag:
+Done:
     - Motivation schreiben
     - RQ schreiben
     - Overview unified System schreiben
-
-Next Week:
     - Mail Profs Anmeldung / Termin
+    - Mail Maletti Zugang Compute Server
+    - Mail Bogdan aktueller Stand und Termin zwischen uns
+
+Heute:
+    - RF-Detr rechnen
+    - create base images for oai_anno
+
+Morgen:
+    - Train on mlserv2 yolo26 with oia_wobird
+    - pip install label-studio
+
+Next Tasks:
     - RT-Detr v1 rechnen
     - Dataset Annotation Plan / Umsetzen
     - Object detection schreiben
