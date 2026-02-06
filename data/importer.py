@@ -1,5 +1,7 @@
 import shutil
+import tempfile
 from pathlib import Path
+from typing import Literal
 
 import fiftyone as fo
 import fiftyone.zoo as foz
@@ -9,10 +11,15 @@ from PIL import Image
 import deepface
 from tqdm import tqdm
 
-from utils import test_mongo_connection
+from utils import test_mongo_connection, convert_fo_bbox_to_absolute
 
 
 def _get_open_image_mappings() -> dict[str, list[str]]:
+    """
+    Definition of the mapping from OpenImagesV7 to OpenAnimalImages dataset.
+
+    :return:
+    """
     # Create mapping of OpenImage classes to my own classes and reduce the number
     # removed Bird from mapping, because of amount of images (50k) and quality of label
     bird = ['Magpie', 'Woodpecker', 'Blue jay', 'Ostrich', 'Penguin', 'Raven', 'Chicken', 'Eagle', 'Owl',
@@ -33,28 +40,120 @@ def _get_open_image_mappings() -> dict[str, list[str]]:
         horse_like, 'small_animals': small_animals}
 
 
-def create_open_animal_images() -> None:
+def create_open_animal_images_dataset(output_dir: Path, export_yolo: bool = True,
+                                      export_coco: bool = False, max_samples: int = None) -> None:
+    """
+    Creates the OpenAnimalImages dataset based on the OpenImagesV7 dataset.
+    It filters for wanted classes and relabels the samples with the new class.
+
+    :param output_dir: Directory to save the OpenAnimalImages dataset.
+    :param export_yolo: Should the dataset be exported in YOLO format?
+    :param export_coco: Should the dataset be exported in COCO format?
+    :param max_samples: [Optional] Maximum number of samples to load per split
+    :return: None
+    """
+    if output_dir.exists() and not output_dir.is_dir():
+        raise ValueError('Output is not a directory.')
+
+    save_path_yolo = Path(output_dir) / 'OpenAnimalImages'
+    if export_yolo:
+        if save_path_yolo.exists() and save_path_yolo.is_dir() and any(save_path_yolo.iterdir()):
+            raise FileExistsError(f'The directory {save_path_yolo} already exists and is not empty.')
+        save_path_yolo.mkdir(parents=True, exist_ok=True)
+
+
+    save_path_coco = Path(output_dir) / 'OpenAnimalImagesCOCO'
+    if export_coco:
+        if save_path_coco.exists() and save_path_coco.is_dir() and any(save_path_coco.iterdir()):
+            raise FileExistsError(f'The directory {save_path_coco} already exists and is not empty.')
+        save_path_coco.mkdir(parents=True, exist_ok=True)
+
+
     for split in ['train', 'validation', 'test']:
-        view = load_open_animal_images(split)
-        # Export dataset into the yolo format
-        view.export(
-            dataset_type=fo.types.YOLOv5Dataset,
-            label_field="ground_truth",
-            export_dir='/mnt/data/afarec/data/OpenAnimalImages_woBird',
-            classes=list(_get_open_image_mappings().keys()),
-            split="val" if split == "validation" else split,
-            overwrite=False,
+        dataset = foz.load_zoo_dataset(
+            "open-images-v7",
+            label_types=["detections"],
+            classes=['Bird', 'Magpie', 'Woodpecker', 'Blue jay', 'Ostrich', 'Penguin', 'Raven', 'Chicken', 'Eagle',
+                     'Owl',
+                     'Duck', 'Canary', 'Goose', 'Swan', 'Falcon', 'Parrot', 'Sparrow', 'Turkey', 'Cat',
+                     'Jaguar (Animal)',
+                     'Lynx', 'Tiger', 'Lion', 'Leopard', 'Cheetah', 'Dog', 'Fox', 'Goat', 'Horse', 'Mule', 'Hamster',
+                     'Mouse', 'Rabbit'],
+            split=split,
+            max_samples=max_samples,
         )
-        # view.export(
-        #     dataset_type=fo.types.COCODetectionDataset,
-        #     label_field="ground_truth",
-        #     export_dir=f'/mnt/data/afarec/data/OpenAnimalImages_COCO/{split}',
-        #     classes=list(_get_open_image_mappings().keys()),
-        #     # split="val" if split == "validation" else split,
-        #     overwrite=False,
-        # )
+
+        new_mappings = _get_open_image_mappings()
+
+        reversed_mapping = {}
+        for key, value in new_mappings.items():
+            for item in value:
+                reversed_mapping[item] = key
+
+        view = dataset.map_labels('ground_truth', reversed_mapping)
+
+        # Filter after only the classes I want to work with
+        view = view.filter_labels("ground_truth", F("label").is_in(list(new_mappings.keys())))
+
+        # Export dataset into the yolo format
+        if export_yolo:
+            view.export(
+                dataset_type=fo.types.YOLOv5Dataset,
+                label_field="ground_truth",
+                export_dir=str(save_path_yolo),
+                classes=list(_get_open_image_mappings().keys()),
+                split="val" if split == "validation" else split,
+                overwrite=False,
+            )
+
+        # Export dataset into the coco format
+        if export_coco:
+            view.export(
+                dataset_type=fo.types.COCODetectionDataset,
+                label_field="ground_truth",
+                export_dir=str(save_path_coco / split),
+                classes=list(_get_open_image_mappings().keys()),
+                overwrite=False,
+            )
+
+
+def load_yolo_dataset_from_disk(save_dir: Path, split: Literal['train', 'validation', 'test'], max_samples: int = None) -> fo.Dataset:
+    """
+    Loads a YOLO dataset from disk.
+
+    :param save_dir: Directory where the dataset is saved in YOLO format
+    :param split: One of 'train', 'validation', 'test' which defines the split to load.
+    :param max_samples: [Optional] Maximum number of samples to load
+    :return: Loaded fo.Dataset
+    """
+    save_dir = Path(save_dir)
+    if not save_dir.exists() or not save_dir.is_dir():
+        raise FileNotFoundError(f'The directory {save_dir} does not exist.')
+    if not any(save_dir.iterdir()):
+        raise ValueError(f'The directory {save_dir} is empty.')
+    if not (save_dir / 'dataset.yaml').exists():
+        raise ValueError(f'The directory {save_dir} is not a valid YOLO dataset: dataset.yaml not found')
+
+    dataset = fo.Dataset.from_dir(
+        dataset_dir=save_dir,
+        dataset_type=fo.types.YOLOv5Dataset,
+        max_samples=max_samples,
+        seed=42,
+        name=f'{save_dir.name}_{split}',
+        split="val" if split == "validation" else split,
+    )
+    return dataset
+
 
 def convert_open_animal_images_to_rt_detr(input_dir: Path, output_dir: Path) -> None:
+    """
+    Converts the exported OpenAnimalImages YOLO dataset into a format so that RF-DETR can work with it.
+
+    :param input_dir: Directory of the OpenAnimalImage dataset in YOLO format.
+    :param output_dir: Directory to export the converted dataset to.
+    :return: None
+    """
+
     splits = [('train', 'train'), ('val', 'valid'), ('test', 'test')]
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -82,45 +181,6 @@ def convert_open_animal_images_to_rt_detr(input_dir: Path, output_dir: Path) -> 
             )
 
 
-def load_open_animal_images(split: str) -> fo.DatasetView:
-    dataset = foz.load_zoo_dataset(
-        "open-images-v7",
-        label_types=["detections"],
-        # classes=['Animal', 'Bird', 'Magpie', 'Woodpecker', 'Blue jay', 'Ostrich', 'Penguin', 'Raven', 'Chicken',
-        #          'Eagle', 'Owl', 'Duck', 'Canary', 'Goose', 'Swan', 'Falcon', 'Parrot', 'Sparrow', 'Turkey',
-        #          'Invertebrate', 'Tick', 'Centipede', 'Marine invertebrates', 'Starfish', 'Isopod', 'Squid', 'Lobster',
-        #          'Jellyfish', 'Shrimp', 'Crab', 'Insect', 'Bee', 'Beetle', 'Ladybug', 'Ant', 'Moths and butterflies',
-        #          'Caterpillar', 'Butterfly', 'Dragonfly', 'Scorpion', 'Worm', 'Spider', 'Oyster', 'Snail', 'Mammal',
-        #          'Bat (Animal)', 'Carnivore', 'Bear', 'Brown bear', 'Panda', 'Polar bear', 'Teddy bear', 'Cat', 'Fox',
-        #          'Jaguar (Animal)', 'Lynx', 'Red panda', 'Tiger', 'Lion', 'Dog', 'Leopard', 'Cheetah', 'Otter',
-        #          'Raccoon', 'Camel', 'Cattle', 'Giraffe', 'Rhinoceros', 'Goat', 'Horse', 'Hamster', 'Kangaroo', 'Koala',
-        #          'Mouse', 'Pig', 'Rabbit', 'Squirrel', 'Sheep', 'Zebra', 'Monkey', 'Hippopotamus', 'Deer', 'Elephant',
-        #          'Porcupine', 'Hedgehog', 'Bull', 'Antelope', 'Mule', 'Marine mammal', 'Dolphin', 'Whale', 'Sea lion',
-        #          'Harbor seal', 'Skunk', 'Alpaca', 'Armadillo', 'Reptile', 'Dinosaur', 'Lizard', 'Snake', 'Turtle',
-        #          'Tortoise', 'Sea turtle', 'Crocodile', 'Frog', 'Fish', 'Goldfish', 'Shark', 'Rays and skates',
-        #          'Seahorse', 'Shellfish', 'Oyster', 'Lobster', 'Shrimp', 'Crab']
-        classes=['Bird', 'Magpie', 'Woodpecker', 'Blue jay', 'Ostrich', 'Penguin', 'Raven', 'Chicken', 'Eagle', 'Owl',
-                 'Duck', 'Canary', 'Goose', 'Swan', 'Falcon', 'Parrot', 'Sparrow', 'Turkey', 'Cat', 'Jaguar (Animal)',
-                 'Lynx', 'Tiger', 'Lion', 'Leopard', 'Cheetah', 'Dog', 'Fox', 'Goat', 'Horse', 'Mule', 'Hamster',
-                 'Mouse', 'Rabbit'],
-        split=split,
-    )
-
-    new_mappings = _get_open_image_mappings()
-
-    reversed_mapping = {}
-    for key, value in new_mappings.items():
-        for item in value:
-            reversed_mapping[item] = key
-
-    view = dataset.map_labels('ground_truth', reversed_mapping)
-
-    # Filter after only the classes I want to work with
-    view = view.filter_labels("ground_truth", F("label").is_in(list(new_mappings.keys())))
-
-    return view
-
-
 def load_coco() -> None:
     dataset = foz.load_zoo_dataset(
         "coco-2017",
@@ -136,50 +196,72 @@ def load_coco() -> None:
     session.wait()
 
 
-def create_oai_anno_files(oai_dateset: fo.DatasetView) -> None:
-    new_dataset = fo.Dataset("OpenAnimalImages_anno")
+def create_open_animal_face_images_dataset(oai_dir: Path, export_dir: Path, max_samples: int = None) -> None:
+    """
+    Creates the OpenAnimalFaceImages dataset based on the OpenAnimalImages dataset.
+    Crops each sample to the detected animal and exports it afterwards.
 
-    for sample in oai_dateset:
-        img = sample.filepath
-        detections = sample.ground_truth.detections
+    It creates a tmp directory in the export_dir to export the dataset.
 
-        for det in detections:
-            bbox = det.bounding_box
-            x, y, width, height = bbox[0], bbox[1], bbox[2], bbox[3]
+    :param oai_dir: OpenAnimalImages dataset directory to load from.
+    :param export_dir: Directory to save the OpenAnimalImages dataset.
+    :param max_samples: [Optional] Maximum number of samples to load.
+    :return: None
+    """
+    if export_dir.exists() and not export_dir.is_dir():
+        raise ValueError(f'Output {export_dir} is not a directory.')
 
-            # Crop the image
-            new_img = Image.open(img).crop((x, y, x + width, y + height))
-            # cropped_img = fou.crop_image(img, x, y, width, height)
+    save_path = Path(export_dir) / 'OpenAnimalFaceImages'
+    if save_path.exists() and save_path.is_dir() and any(save_path.iterdir()):
+        raise FileExistsError(f'The directory {save_path} already exists and is not empty.')
+    save_path.mkdir(parents=True, exist_ok=True)
 
-            new_sample = fo.Sample(filepath=cropped_img)
-            new_sample["ground_truth"] = fo.Classification(label=det.label)
-            new_dataset.add_sample(new_sample)
+    with tempfile.TemporaryDirectory(dir=export_dir, prefix='Temp_OpenAnimalFaceImages') as tmp_dir:
+        tmp_dir = Path(tmp_dir)
 
-    # Save the new dataset
-    new_dataset.persistent = True
+        for split in ['train', 'validation', 'test']:
+            oai_dataset = load_yolo_dataset_from_disk(oai_dir, split, max_samples=max_samples)
+            new_dataset = fo.Dataset(f"OpenAnimalFaceImages_{split}")
 
-    for split in ['train', 'validation', 'test']:
-        # Export dataset into the yolo format
-        new_dataset.export(
-            dataset_type=fo.types.YOLOv5Dataset,
-            label_field="ground_truth",
-            export_dir='/mnt/data/afarec/data/OpenAnimalImages_anno',
-            classes=list(_get_open_image_mappings().keys()),
-            split="val" if split == "validation" else split,
-            overwrite=False,
-        )
+            # Iterate through all samples, adjust them and add to the new dataset
+            for sample in tqdm(oai_dataset, desc=f'Crop images for split {split} to new sizes', total=len(oai_dataset)):
+                img_path = Path(sample.filepath)
 
-    print("New dataset created with cropped images!")
+                for i, det in enumerate(sample.ground_truth.detections):
+                    new_img_path = tmp_dir / f'{img_path.stem}_{i}{img_path.suffix}'
+                    img = Image.open(img_path)
+
+                    bbox = convert_fo_bbox_to_absolute(det.bounding_box, img.height, img.width)
+                    img.crop(bbox).save(new_img_path)
+
+                    new_sample = fo.Sample(filepath=new_img_path)
+                    new_sample["ground_truth"] = fo.Classification(label=det.label)
+                    new_dataset.add_sample(new_sample)
+
+            # Export dataset into the yolo format
+            new_dataset.export(
+                dataset_type=fo.types.YOLOv5Dataset,
+                label_field="ground_truth",
+                export_dir=str(save_path),
+                classes=list(_get_open_image_mappings().keys()),
+                split="val" if split == "validation" else split,
+                overwrite=False,
+            )
+
+            print(f'Split {split} converted.')
 
 
 if __name__ == '__main__':
-    convert_open_animal_images_to_rt_detr(Path('/mnt/data/afarec/data/OpenAnimalImages_woBird'), Path('/mnt/data/afarec/data/OpenAnimalImages_RF-DETR_woBird'))
-    # test_mongo_connection()
-    # fo.config.dataset_zoo_dir = Path('/mnt/data/afarec/data')
-    # fo.config.database_uri = 'mongodb://127.0.0.1:27017'
-    # fo.config.database_validation = False
-    # create_open_animal_images()
-    # data = load_open_animal_images(None)
+    # convert_open_animal_images_to_rt_detr(Path('/mnt/data/afarec/data/OpenAnimalImages_woBird'), Path('/mnt/data/afarec/data/OpenAnimalImages_RF-DETR_woBird'))
+    test_mongo_connection()
+    fo.config.dataset_zoo_dir = Path('/mnt/data/afarec/data')
+    fo.config.database_uri = 'mongodb://127.0.0.1:27017'
+    fo.config.database_validation = False
+    # create_open_animal_images_dataset()
+    # data = load_yolo_dataset_from_disk(Path('/mnt/data/afarec/data/OpenAnimalImages_woBird'), max_samples=30)
+    create_open_animal_face_images_dataset(
+        Path('/mnt/data/afarec/data/OpenAnimalImages_woBird'),
+        Path('/mnt/data/afarec/data'), max_samples=10)
     # load_coco()
     # print(fo.list_datasets())
     # session = fo.launch_app()

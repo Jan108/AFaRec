@@ -89,7 +89,7 @@ Done:
 
 Heute:
     - RF-Detr rechnen
-    - create base images for oai_anno
+    - create base images for oai_anno 
 
 Morgen:
     - Train on mlserv2 yolo26 with oia_wobird
