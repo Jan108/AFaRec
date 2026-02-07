@@ -8,7 +8,6 @@ import fiftyone.zoo as foz
 from fiftyone import ViewField as F
 from PIL import Image
 
-import deepface
 from tqdm import tqdm
 
 from utils import test_mongo_connection, convert_fo_bbox_to_absolute
@@ -142,6 +141,7 @@ def load_yolo_dataset_from_disk(save_dir: Path, split: Literal['train', 'validat
         name=f'{save_dir.name}_{split}',
         split="val" if split == "validation" else split,
     )
+    dataset.persistent = False
     return dataset
 
 
@@ -238,6 +238,8 @@ def create_open_animal_face_images_dataset(oai_dir: Path, export_dir: Path, max_
                     new_sample["ground_truth"] = fo.Classification(label=det.label)
                     new_dataset.add_sample(new_sample)
 
+            new_dataset.persistent = False
+
             # Export dataset into the yolo format
             new_dataset.export(
                 dataset_type=fo.types.YOLOv5Dataset,
@@ -257,11 +259,11 @@ if __name__ == '__main__':
     fo.config.dataset_zoo_dir = Path('/mnt/data/afarec/data')
     fo.config.database_uri = 'mongodb://127.0.0.1:27017'
     fo.config.database_validation = False
-    # create_open_animal_images_dataset()
+    # create_open_animal_images_dataset(Path('fff'))
     # data = load_yolo_dataset_from_disk(Path('/mnt/data/afarec/data/OpenAnimalImages_woBird'), max_samples=30)
     create_open_animal_face_images_dataset(
         Path('/mnt/data/afarec/data/OpenAnimalImages_woBird'),
-        Path('/mnt/data/afarec/data'), max_samples=10)
+        Path('/mnt/data/afarec/data'), max_samples=None)
     # load_coco()
     # print(fo.list_datasets())
     # session = fo.launch_app()

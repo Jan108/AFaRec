@@ -1,16 +1,16 @@
 from ultralytics import YOLO
-from ultralytics.models.rtdetr import RTDETR
 
 
-def train_model() -> None:
-    model = RTDETR("/mnt/data/afarec/code/runs/detect/rtdetrv1-s_oai_2026-02-03/rtdetr_r18vd_dec3_6x_coco_from_paddle.pt")
+def train_yolo26s() -> None:
+    YOLO("yolo26s.pt").train(data="/mnt/data/afarec/data/OpenAnimalImages/dataset.yaml",
+                             epochs=100, imgsz=640, device="cuda", batch=16, save=True, save_period=1,
+                             name="yolo-s_oai_2026-02-07")
 
-    results = model.train(data="/mnt/data/afarec/data/OpenAnimalImages/dataset.yaml",
-                          epochs=100, imgsz=640, device="cuda", batch=16,
-                          save=True, save_period=1,
-                          name="rtdetrv1-s_oai_2026-02-03")
-    # print(results)
-    pass
+
+def train_yolo26m() -> None:
+    YOLO("yolo26m.pt").train(data="/mnt/data/afarec/data/OpenAnimalImages/dataset.yaml",
+                             epochs=100, imgsz=640, device="cuda", batch=16, save=True, save_period=1,
+                             name="yolo-m_oai_2026-02-07")
 
 
 def resume_training() -> None:
@@ -20,5 +20,5 @@ def resume_training() -> None:
 
 
 if __name__ == '__main__':
-    train_model()
+    train_yolo26s()
     # resume_training()

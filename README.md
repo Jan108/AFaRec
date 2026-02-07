@@ -86,13 +86,15 @@ Done:
     - Mail Profs Anmeldung / Termin
     - Mail Maletti Zugang Compute Server
     - Mail Bogdan aktueller Stand und Termin zwischen uns
+    + create base images for oai_anno
 
 Heute:
-    - RF-Detr rechnen
-    - create base images for oai_anno 
+    + RF-Detr rechnen
+    - train on mlserv yolo26 / rtdetr
+        - write train function
+        - add logging?
 
 Morgen:
-    - Train on mlserv2 yolo26 with oia_wobird
     - pip install label-studio
 
 Next Tasks:

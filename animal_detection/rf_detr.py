@@ -1,3 +1,7 @@
+import json
+from pathlib import Path
+from typing import Any
+
 import torch
 from rfdetr import RFDETRSmall
 
@@ -21,6 +25,14 @@ def resume_training() -> None:
         resume='????????????????',
     )
     pass
+
+
+def parse_eval(log_file: Path) -> list[dict[str, Any]]:
+    eval_data = []
+    with log_file.open('r') as f:
+        for line in f:
+            eval_data.append(json.loads(line))
+    return eval_data
 
 
 if __name__ == '__main__':
