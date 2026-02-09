@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from flask import Flask, render_template, request, redirect, url_for, send_file
@@ -7,6 +8,8 @@ from creation import load_yolo_dataset_from_disk
 
 app = Flask(__name__)
 oafi_dataset: fo.Dataset
+timed_out_samples: dict[str, datetime] = {}
+include_skipped = False
 
 
 def bbox_fo_to_fabric(bbox: list[float], height, width) -> list[float]:
@@ -48,33 +51,80 @@ def bbox_fabric_to_fo(bbox: list[float], height, width) -> list[float]:
     return [x_rel, y_rel, w_rel, h_rel]
 
 
-def update_annotation(img_id: str, no_face: bool, bbox: list[float], img_class: str):
+def update_annotation(img_id: str, no_face: bool, bbox: list[float],
+                      img_class: str, skip_img: bool, anno_name: str):
     """
 
     :param img_id:
     :param no_face:
     :param bbox: need to be [<top-left-x>, <top-left-y>, <width>, <height>]
     :param img_class:
+    :param skip_img:
+    :param anno_name:
     :return:
     """
-
-    print(f"Updating annotation for {img_id} with bbox: {bbox}")
-
     sample = oafi_dataset[img_id]
+    sample.tags.append(anno_name)
+    if skip_img:
+        print(f"Updating annotation for {img_id}: Skipped")
+        sample.tags.append('skipped')
+        sample.save()
+        return
 
     if no_face:
+        print(f"Updating annotation for {img_id}: No face present")
         sample.tags.append('no_face')
     else:
+        print(f"Updating annotation for {img_id}: New bbox {bbox}")
         sample["ground_truth"] = fo.Detections(
             detections=[fo.Detection(label=img_class, bounding_box=list(bbox))]
         )
 
+    if 'skipped' in sample.tags:
+        sample.tags.remove('skipped')
     sample.tags.append('annotated')
     sample.save()
+
+
+def get_unlabeled_sample(only_skipped: bool = False) -> fo.Sample | None:
+    """
+    Get an unlabeled sample from the dataset. Each sample has a timeout of 2min before its returned again.
+    Except if there are no other samples left. Returns None when there are no samples left.
+    :return: unlabeled sample or None
+    """
+    unlabeled_samples = oafi_dataset.match_tags('annotated', bool=False)
+    if only_skipped:
+        unlabeled_samples = unlabeled_samples.match_tags('skipped', bool=True)
+    if unlabeled_samples.count() == 0:
+        return None
+    update_timeout()
+    unlabeled_sample: fo.Sample = None
+    for sample in unlabeled_samples:
+        if sample.id in timed_out_samples:
+            continue
+        print(f'add {sample.id} to timeout')
+        timed_out_samples[sample.id] = datetime.now() + timedelta(seconds=60 * 2)
+        unlabeled_sample = sample
+        break
+    if unlabeled_sample is None:
+        unlabeled_sample = unlabeled_samples.first()
+        print(f'add {sample.id} to timeout')
+        timed_out_samples[unlabeled_sample.id] = datetime.now() + timedelta(seconds=60 * 2)
+    unlabeled_sample.compute_metadata()
+    return unlabeled_sample
+
+
+def update_timeout() -> None:
+    ready_samples = [sample_id for sample_id, timeout in timed_out_samples.items() if timeout < datetime.now()]
+    for sample_id in ready_samples:
+        del timed_out_samples[sample_id]
+    print(f'Timeout Samples: {timed_out_samples}; removed {ready_samples}')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        img_id = request.form['img_id']
+        img_skip = request.form['img_skip'] == 'skipped'
         a_img_height = int(request.form['img_height'])
         a_img_width = int(request.form['img_width'])
         annotated_bbox = bbox_fabric_to_fo(
@@ -82,24 +132,29 @@ def index():
              float(request.form['bbox_w']), float(request.form['bbox_h'])],
             a_img_height, a_img_width
         )
-        img_id = request.form['img_id']
         img_class = request.form['img_class']
         img_no_face = 'img_no_face' in request.form
+        anno_name = request.form['anno_name']
 
-        update_annotation(img_id, bool(img_no_face), annotated_bbox, img_class)
+        update_annotation(img_id, bool(img_no_face), annotated_bbox, img_class, img_skip, anno_name)
 
         return redirect(url_for('index'))
 
     # Get unlabeled Sample and render annotation page
-    unlabeled_samples = oafi_dataset.match_tags('annotated', bool=False)
-    if unlabeled_samples.count() == 0:
-        return 'Done!!'
-    unlabeled_sample: fo.Sample = unlabeled_samples.first()
-    unlabeled_sample.compute_metadata()
-    count_labeled = oafi_dataset.match_tags('annotated', bool=True).count()
-    count_unlabeled = oafi_dataset.match_tags('annotated', bool=False).count()
-    pct_labeled = round((count_labeled / oafi_dataset.count()) * 100, 2)
+    unlabeled_sample = get_unlabeled_sample(only_skipped=include_skipped)
+    if unlabeled_sample is None:
+        if include_skipped and oafi_dataset.match_tags('skipped', bool=True).count() == 0:
+            return 'Done! Some images where skipped.'
+        return 'Done! ... for now'
 
+    # Compute / Get relevant information
+    filter_tags = ('annotated', 'skipped')
+    if include_skipped:
+        filter_tags = 'annotated'
+    count_labeled = oafi_dataset.match_tags(filter_tags, bool=True).count()
+    count_unlabeled = oafi_dataset.match_tags(filter_tags, bool=False).count()
+    count_skipped = oafi_dataset.match_tags('skipped', bool=True).count()
+    pct_labeled = round((count_labeled / oafi_dataset.count()) * 100, 2)
     img_id = unlabeled_sample.id
     img_height = unlabeled_sample.metadata['height']
     img_width = unlabeled_sample.metadata['width']
@@ -116,7 +171,7 @@ def index():
                            img_id=img_id, img_bbox=bbox_fo_to_fabric(img_bbox, img_height, img_width), img_class=img_class,
                            img_height=img_height, img_width=img_width,
                            count_labeled=count_labeled, count_unlabeled=count_unlabeled,
-                           pct_labeled=pct_labeled,
+                           pct_labeled=pct_labeled, count_skipped=count_skipped,
                            possible_classes=possible_classes)
 
 @app.route('/images/<path:img_id>')
@@ -132,4 +187,6 @@ if __name__ == '__main__':
         Path('/mnt/data/afarec/data/OpenAnimalFaceImages'), 'train', max_samples=350,
         persistence=True, name='Anno-OAFI-350', unified_label_distribution=True
     )
+    # Use to run skipped samples
+    # include_skipped = True
     app.run(debug=True)

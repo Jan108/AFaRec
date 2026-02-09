@@ -89,9 +89,14 @@ Done:
     + create base images for oai_anno
     + RF-Detr rechnen
     - pip install label-studio
+    - Add multi user support
+    - add skip button
 
 Heute:
     + train on mlserv yolo26 / rtdetr (wait for current run to end)
+    - Labeling Guidelines
+    - ask friends and family
+        - Lutz, This, Mama, Josi?, Vero?, Pepy?
 
 Morgen:
     - Dataset Annotation Plan / Umsetzen
