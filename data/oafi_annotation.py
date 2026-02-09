@@ -2,14 +2,30 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from flask import Flask, render_template, request, redirect, url_for, send_file
+from flask_httpauth import HTTPBasicAuth
+from werkzeug.security import generate_password_hash, check_password_hash
 import fiftyone as fo
 
 from creation import load_yolo_dataset_from_disk
 
 app = Flask(__name__)
+auth = HTTPBasicAuth()
 oafi_dataset: fo.Dataset
 timed_out_samples: dict[str, datetime] = {}
 include_skipped = False
+
+users = {
+    "jan": generate_password_hash("jan-nils-lutz-this-birgit-thomas"),
+    "birgit": generate_password_hash("jan-nils-lutz-this-birgit-thomas"),
+    "this": generate_password_hash("jan-nils-lutz-this-birgit-thomas"),
+    "lutz": generate_password_hash("jan-nils-lutz-this-birgit-thomas"),
+}
+
+
+@auth.verify_password
+def verify_password(username, password):
+    if username in users and check_password_hash(users.get(username), password):
+        return username
 
 
 def bbox_fo_to_fabric(bbox: list[float], height, width) -> list[float]:
@@ -121,6 +137,7 @@ def update_timeout() -> None:
     print(f'Timeout Samples: {timed_out_samples}; removed {ready_samples}')
 
 @app.route('/', methods=['GET', 'POST'])
+@auth.login_required
 def index():
     if request.method == 'POST':
         img_id = request.form['img_id']
@@ -133,8 +150,8 @@ def index():
             a_img_height, a_img_width
         )
         img_class = request.form['img_class']
-        img_no_face = 'img_no_face' in request.form
-        anno_name = request.form['anno_name']
+        img_no_face = request.form['img_no_face'] == 'checked'
+        anno_name = auth.current_user()
 
         update_annotation(img_id, bool(img_no_face), annotated_bbox, img_class, img_skip, anno_name)
 
@@ -175,6 +192,7 @@ def index():
                            possible_classes=possible_classes)
 
 @app.route('/images/<path:img_id>')
+@auth.login_required
 def serve_image(img_id):
     try:
         sample = oafi_dataset[img_id]
@@ -184,9 +202,9 @@ def serve_image(img_id):
 
 if __name__ == '__main__':
     oafi_dataset = load_yolo_dataset_from_disk(
-        Path('/mnt/data/afarec/data/OpenAnimalFaceImages'), 'train', max_samples=350,
-        persistence=True, name='Anno-OAFI-350', unified_label_distribution=True
+        Path('/mnt/data/afarec/data/OpenAnimalFaceImages'), 'train', max_samples=2000,
+        persistence=True, name='Anno-OAFI-2000', unified_label_distribution=True
     )
     # Use to run skipped samples
     # include_skipped = True
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0')

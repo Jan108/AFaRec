@@ -13,3 +13,4 @@ albumentations
 torchmetrics
 rfdetr
 flask
+Flask-HTTPAuth

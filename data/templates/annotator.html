@@ -23,7 +23,6 @@
         }
 
         #canvas-container {
-            margin: 20px 0;
             border: 1px solid #ddd;
             border-radius: 4px;
             overflow: hidden;
@@ -39,141 +38,103 @@
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
 <div class="container">
-    <h1>OpenAnimalFaceImages Annotator</h1>
-    <p>
-        Current Image: {{ img_id }}<br>
-        Class: {{ img_class }}<br>
-        Status:
-        <span class="badge bg-success">{{ count_labeled }}</span>
-        <span class="badge bg-danger">{{ count_unlabeled }}</span>
-        <span class="badge bg-primary">{{ count_skipped }}</span>
-        <span class="badge bg-info">{{ pct_labeled }}%</span>
-    </p>
-
-    <div id="canvas-container">
-        <canvas id="canvas" width="900" height="500"></canvas>
-    </div>
-
-<!--    <form id="bbox-form" method="POST">-->
-<!--        <input type="hidden" id="bbox_x" name="bbox_x" value="{{ img_bbox[0] }}">-->
-<!--        <input type="hidden" id="bbox_y" name="bbox_y" value="{{ img_bbox[1] }}">-->
-<!--        <input type="hidden" id="bbox_w" name="bbox_w" value="{{ img_bbox[2] }}">-->
-<!--        <input type="hidden" id="bbox_h" name="bbox_h" value="{{ img_bbox[3] }}">-->
-<!--        <input type="hidden" id="img_height" name="img_height" value="{{ img_height }}">-->
-<!--        <input type="hidden" id="img_width" name="img_width" value="{{ img_width }}">-->
-<!--        <div class="form-group">-->
-<!--            <label for="img_class">Annotation Type:</label>-->
-<!--            <select class="form-control" id="img_class" name="img_class" required>-->
-<!--                <option value="{{ img_class }}" selected>{{ img_class }}</option>-->
-<!--                {% for value in possible_classes %}-->
-<!--                <option value="{{ value }}">{{ value }}</option>-->
-<!--                {% endfor %}-->
-<!--            </select>-->
-<!--        </div>-->
-<!--        <div class="form-check form-switch">-->
-<!--            <input class="form-check-input" type="checkbox" role="switch" id="img_no_face" name="img_no_face">-->
-<!--            <label class="form-check-label" for="img_no_face">Image has no face</label>-->
-<!--        </div>-->
-<!--        <input type="hidden" id="img_id" name="img_id" value="{{ img_id }}">-->
-<!--        <input type="hidden" id="img_skip" name="img_skip" value="">-->
-<!--        <label class="form-label" for="anno_name">Your Name:</label>-->
-<!--        <input type="text" class="form-control" id="anno_name" name="anno_name" required>-->
-<!--        <button type="submit" class="btn btn-primary">Submit</button>-->
-<!--        <button type="submit" class="btn btn-info" onclick="document.getElementById('img_skip').value='skipped';">Skip</button>-->
-<!--    </form>-->
-    <form id="bbox-form" method="POST">
-    <!-- Hidden inputs -->
-    <input type="hidden" id="bbox_x" name="bbox_x" value="{{ img_bbox[0] }}">
-    <input type="hidden" id="bbox_y" name="bbox_y" value="{{ img_bbox[1] }}">
-    <input type="hidden" id="bbox_w" name="bbox_w" value="{{ img_bbox[2] }}">
-    <input type="hidden" id="bbox_h" name="bbox_h" value="{{ img_bbox[3] }}">
-    <input type="hidden" id="img_height" name="img_height" value="{{ img_height }}">
-    <input type="hidden" id="img_width" name="img_width" value="{{ img_width }}">
-    <input type="hidden" id="img_id" name="img_id" value="{{ img_id }}">
-    <input type="hidden" id="img_skip" name="img_skip" value="">
-
-    <!-- Grid layout -->
+    <h3>OpenAnimalFaceImages Annotator</h3>
     <div class="row g-3 align-items-center">
-        <div class="col">
-            <label for="anno_name" class="form-label">Your Name:</label>
-            <input type="text" class="form-control w-50 d-inline" id="anno_name" name="anno_name" required>
+        <div class="col-md-3 align-items-top">
+            Aktuelles Bild: {{ img_id }}<br>
+            Species: {{ img_class }}<br>
+            Status:
+            <span class="badge bg-success">{{ count_labeled }}</span>
+            <span class="badge bg-danger">{{ count_unlabeled }}</span>
+            <span class="badge bg-primary">{{ count_skipped }}</span>
+            <span class="badge bg-info">{{ pct_labeled }}%</span>
         </div>
-        <div class="col">
-            <div class="form-group">
-                <label for="img_class" class="form-label">Annotation Type:</label>
-                <select class="form-select w-50 d-inline" id="img_class" name="img_class" required>
-                    <option value="{{ img_class }}" selected>{{ img_class }}</option>
-                    {% for value in possible_classes %}
-                    <option value="{{ value }}">{{ value }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        <div class="col">
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="img_no_face" name="img_no_face">
-                <label class="form-check-label" for="img_no_face">Image has no face</label>
-            </div>
-        </div>
-        <div class="col d-flex gap-2 justify-content-end">
-            <button type="submit" class="btn btn-primary">Submit</button>
-            <button type="submit" class="btn btn-info" onclick="document.getElementById('img_skip').value='skipped';">Skip</button>
+        <div class="col-md-9">
+            <ul>
+                <li>Das Bild muss ein <strong>echtes Tier</strong> zeigen (keine Zeichnungen, Cartoons oder Statuen).
+                </li>
+                <li>Das Bild darf <strong>nur ein sichtbares Gesicht</strong> des Tieres enthalten.</li>
+                <li>Das Rechteck muss den <strong>Mund/Schnabel/Schnauze</strong> und <strong>mindestens ein
+                    Auge</strong> enthalten.
+                </li>
+                <li>Das Rechteck <strong>muss die Ohren nicht einschließen</strong>, es sei denn, sie sind aufgrund der
+                    oben genannten Kriterien bereits enthalten.
+                </li>
+                <li>Die <strong>obere Grenze</strong> des Rechtecks ist die <strong>Stirn</strong>, <strong>nicht der
+                    obere Teil des Kopfes</strong> – <strong>außer bei Vögeln</strong>, wo der obere Kopfbereich mit
+                    einbezogen wird.
+                </li>
+                <li>Das Rechteck soll <strong>nur das Gesicht</strong> abdecken, nicht den gesamten Kopf.</li>
+            </ul>
         </div>
     </div>
-</form>
+
+    <div class="row">
+        <div class="col-md-10">
+            <div id="canvas-container" class="mb-2">
+                <canvas id="canvas" width="900" height="500"></canvas>
+            </div>
+        </div>
+        <div class="col-md-2">
+            Tastaturkürzel:<br>
+            W / S - Horizontale<br>
+            A / D - Vertikale<br>
+            SHIFT - rechts/unten<br>
+            LEERTASTE - Schneller
+        </div>
+    </div>
+
+    <form id="bbox-form" method="POST">
+        <!-- Hidden inputs -->
+        <input type="hidden" id="bbox_x" name="bbox_x" value="{{ img_bbox[0] }}">
+        <input type="hidden" id="bbox_y" name="bbox_y" value="{{ img_bbox[1] }}">
+        <input type="hidden" id="bbox_w" name="bbox_w" value="{{ img_bbox[2] }}">
+        <input type="hidden" id="bbox_h" name="bbox_h" value="{{ img_bbox[3] }}">
+        <input type="hidden" id="img_height" name="img_height" value="{{ img_height }}">
+        <input type="hidden" id="img_width" name="img_width" value="{{ img_width }}">
+        <input type="hidden" id="img_id" name="img_id" value="{{ img_id }}">
+        <input type="hidden" id="img_skip" name="img_skip" value="">
+        <input type="hidden" id="img_no_face" name="img_no_face" value="">
+
+        <!-- Grid layout -->
+        <div class="row g-3 align-items-center">
+            <div class="col">
+                <div class="form-group">
+                    <label for="img_class" class="form-label">Species:</label>
+                    <select class="form-select w-50 d-inline" id="img_class" name="img_class" required>
+                        <option value="{{ img_class }}" selected>{{ img_class }}</option>
+                        {% for value in possible_classes %}
+                        <option value="{{ value }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col d-flex gap-3 justify-content-end">
+                <button type="submit" class="btn btn-primary"
+                        onclick="document.getElementById('img_skip').value='skipped';">Überspringen
+                </button>
+                <button type="submit" class="btn btn-info"
+                        onclick="document.getElementById('img_no_face').value='checked';">Nicht nutzbar
+                </button>
+                <button type="submit" class="btn btn-success">Absenden</button>
+            </div>
+        </div>
+    </form>
 
 </div>
-<script>
-    // Function to set a cookie
-        function setCookie(name, value, days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            const expires = "expires=" + date.toUTCString();
-            document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
-        }
-
-        // Function to get a cookie
-        function getCookie(name) {
-            const cookieName = name + "=";
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                while (cookie.charAt(0) === ' ') {
-                    cookie = cookie.substring(1);
-                }
-                if (cookie.indexOf(cookieName) === 0) {
-                    return decodeURIComponent(cookie.substring(cookieName.length));
-                }
-            }
-            return "";
-        }
-
-        // Pre-fill the form if cookie exists
-        document.addEventListener('DOMContentLoaded', function() {
-            const annotatorName = getCookie("annotatorName");
-            if (annotatorName) {
-                document.getElementById('anno_name').value = annotatorName;
-            }
-        });
-
-        // Save the name to cookie on form submission
-        document.getElementById('bbox-form').addEventListener('submit', function(e) {
-            const name = document.getElementById('anno_name').value;
-            setCookie("annotatorName", name, 365);
-        });
-</script>
 
 <script>
-document.addEventListener('keydown', function(e) {
-    if (e.key.toLowerCase() === 'q') {
-        const switch_element = document.getElementById('img_no_face');
-        switch_element.checked = !switch_element.checked;
-        e.preventDefault();
-    }
-    if (e.key.toLowerCase() === 'f') {
-        document.getElementById('bbox-form').submit()
-        e.preventDefault();
-    }
-});
+    document.addEventListener('keydown', function (e) {
+        if (e.key.toLowerCase() === 'q') {
+            const switch_element = document.getElementById('img_no_face');
+            switch_element.checked = !switch_element.checked;
+            e.preventDefault();
+        }
+        if (e.key.toLowerCase() === 'f') {
+            document.getElementById('bbox-form').submit()
+            e.preventDefault();
+        }
+    });
 </script>
 
 <!-- Fabric.js -->
@@ -233,6 +194,7 @@ document.addEventListener('keydown', function(e) {
                 hasBorders: true,
                 lockRotation: true,
                 objectCaching: false,
+                lockScalingFlip: true,
             });
             canvas.add(rect);
             canvas.renderAll();
@@ -245,59 +207,65 @@ document.addEventListener('keydown', function(e) {
             };
 
             rect.on('modified', function () {
+                rect.top = Math.min(imgHeight, Math.max(0, rect.top));
+                rect.height = Math.min(imgHeight - rect.top, Math.max(5, rect.height));
+                rect.left = Math.min(imgWidth, Math.max(0, rect.left));
+                rect.width = Math.min(imgWidth - rect.left, Math.max(5, rect.width));
+                rect.setCoords();
+                canvas.renderAll();
                 update_form();
             });
 
             let isSpacePressed = false;
 
 // Track Spacebar state
-document.addEventListener('keydown', function(e) {
-    if (e.code === 'Space') {
-        isSpacePressed = true;
-    }
-});
+            document.addEventListener('keydown', function (e) {
+                if (e.code === 'Space') {
+                    isSpacePressed = true;
+                }
+            });
 
-document.addEventListener('keyup', function(e) {
-    if (e.code === 'Space') {
-        isSpacePressed = false;
-    }
-});
+            document.addEventListener('keyup', function (e) {
+                if (e.code === 'Space') {
+                    isSpacePressed = false;
+                }
+            });
 
             document.addEventListener('keydown', function (e) {
                 if (!rect) return;
 
                 const moveStep = isSpacePressed ? 50 : 5;
                 const isCtrlPressed = e.shiftKey;
-
+                const finishChange = function () {
+                    rect.top = Math.min(imgHeight, Math.max(0, rect.top));
+                    rect.height = Math.min(imgHeight - rect.top, Math.max(5, rect.height));
+                    rect.left = Math.min(imgWidth, Math.max(0, rect.left));
+                    rect.width = Math.min(imgWidth - rect.left, Math.max(5, rect.width));
+                    rect.setCoords();
+                    canvas.renderAll();
+                    update_form();
+                };
                 requestAnimationFrame(() => {
                     if (isCtrlPressed) {
                         switch (e.key.toLowerCase()) {
                             case 'w':
                                 rect.height -= moveStep;
-                                rect.setCoords();
-                                canvas.renderAll();
-                                update_form();
+                                finishChange();
                                 e.preventDefault();
                                 break;
                             case 'a':
                                 rect.width -= moveStep;
-                                rect.setCoords();
-                                canvas.renderAll();
-                                update_form();
+                                finishChange();
                                 e.preventDefault();
                                 break;
                             case 's':
                                 rect.height += moveStep;
-                                rect.setCoords();
-                                canvas.renderAll();
-                                update_form();
+                                finishChange();
                                 e.preventDefault();
                                 break;
                             case 'd':
                                 rect.width += moveStep;
-                                rect.setCoords();
-                                canvas.renderAll();
-                                update_form();
+                                finishChange();
                                 e.preventDefault();
                                 break;
                         }
@@ -306,33 +274,25 @@ document.addEventListener('keyup', function(e) {
                             case 'w':
                                 rect.top -= moveStep;
                                 rect.height += moveStep;
-                                rect.setCoords();
-                                canvas.renderAll();
-                                update_form();
+                                finishChange();
                                 e.preventDefault();
                                 break;
                             case 'a':
                                 rect.left -= moveStep;
                                 rect.width += moveStep;
-                                rect.setCoords();
-                                canvas.renderAll();
-                                update_form();
+                                finishChange();
                                 e.preventDefault();
                                 break;
                             case 's':
                                 rect.top += moveStep;
                                 rect.height -= moveStep;
-                                rect.setCoords();
-                                canvas.renderAll();
-                                update_form();
+                                finishChange();
                                 e.preventDefault();
                                 break;
                             case 'd':
                                 rect.left += moveStep;
                                 rect.width -= moveStep;
-                                rect.setCoords();
-                                canvas.renderAll();
-                                update_form();
+                                finishChange();
                                 e.preventDefault();
                                 break;
                         }
