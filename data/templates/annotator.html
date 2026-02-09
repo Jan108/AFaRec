@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAFI Annotator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #canvas-container {
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+<div class="container">
+    <h1>OpenAnimalFaceImages Annotator</h1>
+    <p>
+        Current Image: {{ img_id }}<br>
+        Class: {{ img_class }}<br>
+        Status:
+        <span class="badge bg-success">{{ count_labeled }}</span>
+        <span class="badge bg-danger">{{ count_unlabeled }}</span>
+        <span class="badge bg-info">{{ pct_labeled }}%</span>
+    </p>
+
+    <div id="canvas-container">
+        <canvas id="canvas" width="900" height="500"></canvas>
+    </div>
+
+    <form id="bbox-form" method="POST">
+        <input type="hidden" id="bbox_x" name="bbox_x" value="{{ img_bbox[0] }}">
+        <input type="hidden" id="bbox_y" name="bbox_y" value="{{ img_bbox[1] }}">
+        <input type="hidden" id="bbox_w" name="bbox_w" value="{{ img_bbox[2] }}">
+        <input type="hidden" id="bbox_h" name="bbox_h" value="{{ img_bbox[3] }}">
+        <input type="hidden" id="img_height" name="img_height" value="{{ img_height }}">
+        <input type="hidden" id="img_width" name="img_width" value="{{ img_width }}">
+        <div class="form-group">
+            <label for="img_class">Annotation Type:</label>
+            <select class="form-control" id="img_class" name="img_class" required>
+                <option value="{{ img_class }}" selected>{{ img_class }}</option>
+                {% for value in possible_classes %}
+                <option value="{{ value }}">{{ value }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="img_no_face" name="img_no_face">
+            <label class="form-check-label" for="img_no_face">Image has no face</label>
+        </div>
+        <input type="hidden" id="img_id" name="img_id" value="{{ img_id }}">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key.toLowerCase() === 'q') {
+        const switch_element = document.getElementById('img_no_face');
+        switch_element.checked = !switch_element.checked;
+        e.preventDefault();
+    }
+    if (e.key.toLowerCase() === 'f') {
+        document.getElementById('bbox-form').submit()
+        e.preventDefault();
+    }
+});
+</script>
+
+<!-- Fabric.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvas = new fabric.Canvas('canvas');
+        const imageUrl = "{{ url_for('serve_image', img_id=img_id) }}";
+
+        fabric.Image.fromURL(imageUrl, function (img) {
+            img.set({
+                selectable: false,
+                hasControls: false,
+                hasBorders: false,
+                lockMovementX: true,
+                lockMovementY: true,
+                lockScalingX: true,
+                lockScalingY: true,
+            });
+            canvas.add(img);
+
+            // Get canvas and image dimensions
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            const imgWidth = img.width;
+            const imgHeight = img.height;
+
+            // Calculate the zoom level to fit the image within the canvas
+            const zoomX = canvasWidth / imgWidth;
+            const zoomY = canvasHeight / imgHeight;
+            const zoom = Math.min(zoomX, zoomY);
+
+            // Apply the zoom and center the image
+            canvas.setZoom(zoom);
+            canvas.setViewportTransform([zoom, 0, 0, zoom, 0, 0]);
+
+            // Center the image in the viewport
+            const centerX = (canvasWidth - imgWidth * zoom) / 2;
+            const centerY = (canvasHeight - imgHeight * zoom) / 2;
+            canvas.setViewportTransform([zoom, 0, 0, zoom, centerX, centerY]);
+
+            // Disable user zooming/panning
+            canvas.selection = false;
+            canvas.defaultCursor = 'default';
+            canvas.renderAll();
+
+            const rect = new fabric.Rect({
+                left: parseFloat(document.getElementById('bbox_x').value),
+                top: parseFloat(document.getElementById('bbox_y').value),
+                width: parseFloat(document.getElementById('bbox_w').value),
+                height: parseFloat(document.getElementById('bbox_h').value),
+                fill: 'transparent',
+                stroke: 'red',
+                strokeWidth: 3,
+                selectable: true,
+                hasControls: true,
+                hasBorders: true,
+                lockRotation: true,
+                objectCaching: false,
+            });
+            canvas.add(rect);
+            canvas.renderAll();
+
+            const update_form = function () {
+                document.getElementById('bbox_x').value = rect.left.toFixed(2);
+                document.getElementById('bbox_y').value = rect.top.toFixed(2);
+                document.getElementById('bbox_w').value = (rect.width * rect.scaleX).toFixed(2);
+                document.getElementById('bbox_h').value = (rect.height * rect.scaleY).toFixed(2);
+            };
+
+            rect.on('modified', function () {
+                update_form();
+            });
+
+            let isSpacePressed = false;
+
+// Track Spacebar state
+document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space') {
+        isSpacePressed = true;
+    }
+});
+
+document.addEventListener('keyup', function(e) {
+    if (e.code === 'Space') {
+        isSpacePressed = false;
+    }
+});
+
+            document.addEventListener('keydown', function (e) {
+                if (!rect) return;
+
+                const moveStep = isSpacePressed ? 50 : 5;
+                const isCtrlPressed = e.shiftKey;
+
+                requestAnimationFrame(() => {
+                    if (isCtrlPressed) {
+                        switch (e.key.toLowerCase()) {
+                            case 'w':
+                                rect.height -= moveStep;
+                                rect.setCoords();
+                                canvas.renderAll();
+                                update_form();
+                                e.preventDefault();
+                                break;
+                            case 'a':
+                                rect.width -= moveStep;
+                                rect.setCoords();
+                                canvas.renderAll();
+                                update_form();
+                                e.preventDefault();
+                                break;
+                            case 's':
+                                rect.height += moveStep;
+                                rect.setCoords();
+                                canvas.renderAll();
+                                update_form();
+                                e.preventDefault();
+                                break;
+                            case 'd':
+                                rect.width += moveStep;
+                                rect.setCoords();
+                                canvas.renderAll();
+                                update_form();
+                                e.preventDefault();
+                                break;
+                        }
+                    } else {
+                        switch (e.key.toLowerCase()) {
+                            case 'w':
+                                rect.top -= moveStep;
+                                rect.height += moveStep;
+                                rect.setCoords();
+                                canvas.renderAll();
+                                update_form();
+                                e.preventDefault();
+                                break;
+                            case 'a':
+                                rect.left -= moveStep;
+                                rect.width += moveStep;
+                                rect.setCoords();
+                                canvas.renderAll();
+                                update_form();
+                                e.preventDefault();
+                                break;
+                            case 's':
+                                rect.top += moveStep;
+                                rect.height -= moveStep;
+                                rect.setCoords();
+                                canvas.renderAll();
+                                update_form();
+                                e.preventDefault();
+                                break;
+                            case 'd':
+                                rect.left += moveStep;
+                                rect.width -= moveStep;
+                                rect.setCoords();
+                                canvas.renderAll();
+                                update_form();
+                                e.preventDefault();
+                                break;
+                        }
+                    }
+                });
+            });
+            update_form();
+        });
+    });
+
+</script>
+</body>
+</html>

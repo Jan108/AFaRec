@@ -87,20 +87,29 @@ Done:
     - Mail Maletti Zugang Compute Server
     - Mail Bogdan aktueller Stand und Termin zwischen uns
     + create base images for oai_anno
-
-Heute:
     + RF-Detr rechnen
-    - train on mlserv yolo26 / rtdetr
-        - write train function
-        - add logging?
-
-Morgen:
     - pip install label-studio
 
-Next Tasks:
-    - RT-Detr v1 rechnen
+Heute:
+    + train on mlserv yolo26 / rtdetr (wait for current run to end)
+
+Morgen:
     - Dataset Annotation Plan / Umsetzen
-    - Object detection schreiben
+        - start labeling 300 images
+        - train on small sample
+        - predict better labels
+        - repeat
+
+Next Tasks:
+    - write 4.2 datasets
+    - write 4.2.1 OpenAnimalImages
+    - write 4.2.2 OpenAnimalFaceImages part, leave annotation out
+    - write 2
+    - write 2.1 Object Detection
+    - write 2.1.1 YOLO
+    - write 2.1.2 RF-DETR
+    - write 2.1.3 RT-DETR
+    - write 4.3 Object detection
 
 | name          | APval 50:95 COCO | Link                                                                           |
 |---------------|------------------|--------------------------------------------------------------------------------|

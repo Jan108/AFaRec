@@ -13,6 +13,13 @@ from tqdm import tqdm
 from utils import test_mongo_connection, convert_fo_bbox_to_absolute
 
 
+# Setup FiftyOne
+test_mongo_connection()
+fo.config.dataset_zoo_dir = Path('/mnt/data/afarec/data')
+fo.config.database_uri = 'mongodb://127.0.0.1:27017'
+fo.config.database_validation = False
+
+
 def _get_open_image_mappings() -> dict[str, list[str]]:
     """
     Definition of the mapping from OpenImagesV7 to OpenAnimalImages dataset.
@@ -116,13 +123,18 @@ def create_open_animal_images_dataset(output_dir: Path, export_yolo: bool = True
             )
 
 
-def load_yolo_dataset_from_disk(save_dir: Path, split: Literal['train', 'validation', 'test'], max_samples: int = None) -> fo.Dataset:
+def load_yolo_dataset_from_disk(save_dir: Path, split: Literal['train', 'validation', 'test'],
+                                max_samples: int = None, persistence: bool = False, name: str = None,
+                                unified_label_distribution: bool = False) -> fo.Dataset:
     """
     Loads a YOLO dataset from disk.
 
     :param save_dir: Directory where the dataset is saved in YOLO format
     :param split: One of 'train', 'validation', 'test' which defines the split to load.
     :param max_samples: [Optional] Maximum number of samples to load
+    :param persistence: [Optional] Should the dataset be persisted in the FiftyOne DB?
+    :param name: [Optional] Name of the dataset
+    :param unified_label_distribution: [Optional] Should the amount of samples per class be the same, when using max_samples?
     :return: Loaded fo.Dataset
     """
     save_dir = Path(save_dir)
@@ -133,15 +145,34 @@ def load_yolo_dataset_from_disk(save_dir: Path, split: Literal['train', 'validat
     if not (save_dir / 'dataset.yaml').exists():
         raise ValueError(f'The directory {save_dir} is not a valid YOLO dataset: dataset.yaml not found')
 
-    dataset = fo.Dataset.from_dir(
-        dataset_dir=save_dir,
-        dataset_type=fo.types.YOLOv5Dataset,
-        max_samples=max_samples,
-        seed=42,
-        name=f'{save_dir.name}_{split}',
-        split="val" if split == "validation" else split,
-    )
-    dataset.persistent = False
+    name = name if name is not None else f'{save_dir.name}_{split}'
+
+    if name in fo.list_datasets():
+        if not persistence:
+            raise ValueError(f'The dataset {name} is already persisted in the FiftyOne DB.')
+        return fo.load_dataset(name)
+    if unified_label_distribution:
+        full_dataset = fo.Dataset.from_dir(
+            dataset_dir=save_dir,
+            dataset_type=fo.types.YOLOv5Dataset,
+            seed=42,
+            split="val" if split == "validation" else split,
+        )
+        dataset = fo.Dataset(name=name)
+        labels = list(full_dataset.count_values('ground_truth.detections.label').keys())
+        for label in labels:
+            label_view = full_dataset.filter_labels("ground_truth", F("label").is_in([label]))
+            dataset.add_samples(label_view.take(int(max_samples/len(labels)), seed=42))
+    else:
+        dataset = fo.Dataset.from_dir(
+            dataset_dir=save_dir,
+            dataset_type=fo.types.YOLOv5Dataset,
+            max_samples=max_samples,
+            seed=42,
+            name=name,
+            split="val" if split == "validation" else split,
+        )
+    dataset.persistent = persistence
     return dataset
 
 
@@ -255,16 +286,17 @@ def create_open_animal_face_images_dataset(oai_dir: Path, export_dir: Path, max_
 
 if __name__ == '__main__':
     # convert_open_animal_images_to_rt_detr(Path('/mnt/data/afarec/data/OpenAnimalImages_woBird'), Path('/mnt/data/afarec/data/OpenAnimalImages_RF-DETR_woBird'))
-    test_mongo_connection()
-    fo.config.dataset_zoo_dir = Path('/mnt/data/afarec/data')
-    fo.config.database_uri = 'mongodb://127.0.0.1:27017'
-    fo.config.database_validation = False
     # create_open_animal_images_dataset(Path('fff'))
     # data = load_yolo_dataset_from_disk(Path('/mnt/data/afarec/data/OpenAnimalImages_woBird'), max_samples=30)
-    create_open_animal_face_images_dataset(
-        Path('/mnt/data/afarec/data/OpenAnimalImages_woBird'),
-        Path('/mnt/data/afarec/data'), max_samples=None)
+    # create_open_animal_face_images_dataset(
+    #     Path('/mnt/data/afarec/data/OpenAnimalImages_woBird'),
+    #     Path('/mnt/data/afarec/data'), max_samples=None)
+    # oafi_dataset = load_yolo_dataset_from_disk(
+    #     Path('/mnt/data/afarec/data/OpenAnimalFaceImages'), 'train', max_samples=300,
+    #     persistence=False, name='Anno-OAFI-300_fff', unified_label_distribution=True
+    # )
+    # print(oafi_dataset.count_values())
     # load_coco()
     # print(fo.list_datasets())
-    # session = fo.launch_app()
-    # session.wait(-1)
+    session = fo.launch_app()
+    session.wait(-1)

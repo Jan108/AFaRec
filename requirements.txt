@@ -12,3 +12,4 @@ accelerate
 albumentations
 torchmetrics
 rfdetr
+flask
