@@ -80,7 +80,12 @@
             W / S - Horizontale<br>
             A / D - Vertikale<br>
             SHIFT - rechts/unten<br>
-            LEERTASTE - Schneller
+            LEERTASTE - Schneller<br>
+            <br>
+            Kürzel zum Abgeben:<br>
+            R - Überspringen<br>
+            Q - Nicht nutzbar<br>
+            F - Absenden
         </div>
     </div>
 
@@ -93,6 +98,7 @@
         <input type="hidden" id="img_height" name="img_height" value="{{ img_height }}">
         <input type="hidden" id="img_width" name="img_width" value="{{ img_width }}">
         <input type="hidden" id="img_id" name="img_id" value="{{ img_id }}">
+        <input type="hidden" id="time_start" name="time_start" value="{{ time_start }}">
         <input type="hidden" id="img_skip" name="img_skip" value="">
         <input type="hidden" id="img_no_face" name="img_no_face" value="">
 
@@ -110,10 +116,10 @@
                 </div>
             </div>
             <div class="col d-flex gap-3 justify-content-end">
-                <button type="submit" class="btn btn-primary"
+                <button type="submit" class="btn btn-primary" id="btn_skip"
                         onclick="document.getElementById('img_skip').value='skipped';">Überspringen
                 </button>
-                <button type="submit" class="btn btn-info"
+                <button type="submit" class="btn btn-info" id="btn_no_face"
                         onclick="document.getElementById('img_no_face').value='checked';">Nicht nutzbar
                 </button>
                 <button type="submit" class="btn btn-success">Absenden</button>
@@ -126,12 +132,15 @@
 <script>
     document.addEventListener('keydown', function (e) {
         if (e.key.toLowerCase() === 'q') {
-            const switch_element = document.getElementById('img_no_face');
-            switch_element.checked = !switch_element.checked;
+            document.getElementById('btn_no_face').click();
             e.preventDefault();
         }
         if (e.key.toLowerCase() === 'f') {
-            document.getElementById('bbox-form').submit()
+            document.getElementById('bbox-form').submit();
+            e.preventDefault();
+        }
+        if (e.key.toLowerCase() === 'r') {
+            document.getElementById('btn_skip').click();
             e.preventDefault();
         }
     });

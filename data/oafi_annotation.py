@@ -15,10 +15,10 @@ timed_out_samples: dict[str, datetime] = {}
 include_skipped = False
 
 users = {
-    "jan": generate_password_hash("jan-nils-lutz-this-birgit-thomas"),
-    "birgit": generate_password_hash("jan-nils-lutz-this-birgit-thomas"),
-    "this": generate_password_hash("jan-nils-lutz-this-birgit-thomas"),
-    "lutz": generate_password_hash("jan-nils-lutz-this-birgit-thomas"),
+    "jan": generate_password_hash("jannilslutzthisbirgitthomas"),
+    "birgit": generate_password_hash("jannilslutzthisbirgitthomas"),
+    "this": generate_password_hash("jannilslutzthisbirgitthomas"),
+    "lutz": generate_password_hash("jannilslutzthisbirgitthomas"),
 }
 
 
@@ -68,7 +68,7 @@ def bbox_fabric_to_fo(bbox: list[float], height, width) -> list[float]:
 
 
 def update_annotation(img_id: str, no_face: bool, bbox: list[float],
-                      img_class: str, skip_img: bool, anno_name: str):
+                      img_class: str, skip_img: bool, anno_name: str, time_dur: timedelta):
     """
 
     :param img_id:
@@ -77,21 +77,23 @@ def update_annotation(img_id: str, no_face: bool, bbox: list[float],
     :param img_class:
     :param skip_img:
     :param anno_name:
+    :param time_dur:
     :return:
     """
     sample = oafi_dataset[img_id]
     sample.tags.append(anno_name)
+    sample['annotation_time'] = time_dur.total_seconds()
     if skip_img:
-        print(f"Updating annotation for {img_id}: Skipped")
+        print(f"Updating annotation for {img_id} by {anno_name} ({time_dur.total_seconds()} s): Skipped")
         sample.tags.append('skipped')
         sample.save()
         return
 
     if no_face:
-        print(f"Updating annotation for {img_id}: No face present")
+        print(f"Updating annotation for {img_id} by {anno_name}  ({time_dur.total_seconds()} s): No face present")
         sample.tags.append('no_face')
     else:
-        print(f"Updating annotation for {img_id}: New bbox {bbox}")
+        print(f"Updating annotation for {img_id} by {anno_name}  ({time_dur.total_seconds()} s): New bbox {bbox}")
         sample["ground_truth"] = fo.Detections(
             detections=[fo.Detection(label=img_class, bounding_box=list(bbox))]
         )
@@ -111,6 +113,8 @@ def get_unlabeled_sample(only_skipped: bool = False) -> fo.Sample | None:
     unlabeled_samples = oafi_dataset.match_tags('annotated', bool=False)
     if only_skipped:
         unlabeled_samples = unlabeled_samples.match_tags('skipped', bool=True)
+    else:
+        unlabeled_samples = unlabeled_samples.match_tags('skipped', bool=False)
     if unlabeled_samples.count() == 0:
         return None
     update_timeout()
@@ -118,13 +122,13 @@ def get_unlabeled_sample(only_skipped: bool = False) -> fo.Sample | None:
     for sample in unlabeled_samples:
         if sample.id in timed_out_samples:
             continue
-        print(f'add {sample.id} to timeout')
+        # print(f'add {sample.id} to timeout')
         timed_out_samples[sample.id] = datetime.now() + timedelta(seconds=60 * 2)
         unlabeled_sample = sample
         break
     if unlabeled_sample is None:
         unlabeled_sample = unlabeled_samples.first()
-        print(f'add {sample.id} to timeout')
+        # print(f'add {sample.id} to timeout')
         timed_out_samples[unlabeled_sample.id] = datetime.now() + timedelta(seconds=60 * 2)
     unlabeled_sample.compute_metadata()
     return unlabeled_sample
@@ -134,7 +138,7 @@ def update_timeout() -> None:
     ready_samples = [sample_id for sample_id, timeout in timed_out_samples.items() if timeout < datetime.now()]
     for sample_id in ready_samples:
         del timed_out_samples[sample_id]
-    print(f'Timeout Samples: {timed_out_samples}; removed {ready_samples}')
+    # print(f'Timeout Samples: {timed_out_samples}; removed {ready_samples}')
 
 @app.route('/', methods=['GET', 'POST'])
 @auth.login_required
@@ -150,10 +154,11 @@ def index():
             a_img_height, a_img_width
         )
         img_class = request.form['img_class']
+        time_dur = datetime.now() - datetime.strptime(request.form['time_start'], '%Y-%m-%d %H:%M:%S')
         img_no_face = request.form['img_no_face'] == 'checked'
         anno_name = auth.current_user()
 
-        update_annotation(img_id, bool(img_no_face), annotated_bbox, img_class, img_skip, anno_name)
+        update_annotation(img_id, bool(img_no_face), annotated_bbox, img_class, img_skip, anno_name, time_dur)
 
         return redirect(url_for('index'))
 
@@ -177,7 +182,7 @@ def index():
     img_width = unlabeled_sample.metadata['width']
     img_bbox = [0, 0, 1, 1]
     img_class = 'None'
-    possible_classes = ['cat', 'dog', 'cat_like', 'dog_like', 'bird', 'horse_like', 'small_animal']
+    possible_classes = ['cat', 'dog', 'cat_like', 'dog_like', 'bird', 'horse_like', 'small_animals']
     detections = unlabeled_sample.ground_truth.detections
     if len(detections) > 0:
         img_bbox = detections[0].bounding_box
@@ -189,7 +194,7 @@ def index():
                            img_height=img_height, img_width=img_width,
                            count_labeled=count_labeled, count_unlabeled=count_unlabeled,
                            pct_labeled=pct_labeled, count_skipped=count_skipped,
-                           possible_classes=possible_classes)
+                           time_start=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), possible_classes=possible_classes)
 
 @app.route('/images/<path:img_id>')
 @auth.login_required

@@ -91,24 +91,30 @@ Done:
     - pip install label-studio
     - Add multi user support
     - add skip button
-
-Heute:
-    + train on mlserv yolo26 / rtdetr (wait for current run to end)
+    - Dataset Annotation Plan / Umsetzen
     - Labeling Guidelines
     - ask friends and family
         - Lutz, This, Mama, Josi?, Vero?, Pepy?
-
-Morgen:
-    - Dataset Annotation Plan / Umsetzen
-        - start labeling 300 images
-        - train on small sample
-        - predict better labels
-        - repeat
-
-Next Tasks:
     - write 4.2 datasets
     - write 4.2.1 OpenAnimalImages
-    - write 4.2.2 OpenAnimalFaceImages part, leave annotation out
+
+
+Heute:
+    + train on mlserv yolo26 / rtdetr (wait for current run to end)
+    
+Morgen:
+    - write 4.2.2 OpenAnimalFaceImages
+    - correct counts in 4.2.1
+    - update data on mlserv2
+    - write script to autostart mlserv2
+
+Next Tasks:
+    - Find out which face detectors I wanna use:
+        - List Sota approaches
+        - try some with a lower confidence
+        - find easiest to train
+        - use active learning
+        - complete one, then decide how many I need
     - write 2
     - write 2.1 Object Detection
     - write 2.1.1 YOLO
