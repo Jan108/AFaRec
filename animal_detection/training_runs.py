@@ -3,8 +3,8 @@ import logging
 from datetime import datetime
 import time
 
-from .yolo import train_yolo26s, train_yolo26m
-from .rt_detr import train_rtdetr_v1_l
+from yolo import train_yolo26s, train_yolo26m
+from rt_detr import train_rtdetr_v1_l
 
 # Configure logging
 logging.basicConfig(
@@ -19,12 +19,14 @@ error_logger = logging.getLogger('error_logger')
 error_logger.addHandler(logging.FileHandler("training_errors.log"))
 error_logger.setLevel(logging.ERROR)
 
+dataset_dir = ''
+
 
 def run_with_error_handling(func, func_name):
     """Run a function, handle errors, and log everything."""
     start_time = time.time()
     try:
-        result = func()
+        result = func(dataset_dir=dataset_dir)
         duration = time.time() - start_time
         logging.info(f"Function '{func_name}' succeeded in {duration:.2f} seconds.")
         return {"success": True, "duration": duration, "result": result}

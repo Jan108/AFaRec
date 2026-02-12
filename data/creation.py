@@ -10,10 +10,11 @@ from fiftyone import ViewField as F
 from PIL import Image
 
 from tqdm import tqdm
-if __name__ == '__main__':
+
+try:
+    from data import utils
+except ModuleNotFoundError:
     import utils
-else:
-    from . import utils
 
 
 # Setup FiftyOne
@@ -78,15 +79,13 @@ def create_open_animal_images_dataset(output_dir: Path, persistence: bool = Fals
             name += f"-{max_samples}"
 
     if name in fo.list_datasets():
-        if not persistence:
-            raise ValueError(f'The dataset {name} is already persisted in the FiftyOne DB.')
+        raise ValueError(f'The dataset {name} is already persisted in the FiftyOne DB.')
 
     save_path_yolo = Path(output_dir) / name
     if export_yolo:
         if save_path_yolo.exists() and save_path_yolo.is_dir() and any(save_path_yolo.iterdir()):
             raise FileExistsError(f'The directory {save_path_yolo} already exists and is not empty.')
         save_path_yolo.mkdir(parents=True, exist_ok=True)
-
 
     save_path_coco = Path(output_dir) / f'{name}_COCO'
     if export_coco:
@@ -123,8 +122,9 @@ def create_open_animal_images_dataset(output_dir: Path, persistence: bool = Fals
     # Create a splits
     dataset.untag_samples(["train", "test", 'validation'])
     for class_name in dataset.count_values('ground_truth.detections.label'):
+        nonlabeled_data = dataset.match_tags(["train", "test", 'validation'], bool=False)
         four.random_split(
-            dataset.filter_labels("ground_truth", F("label").is_in([class_name])),
+            nonlabeled_data.filter_labels("ground_truth", F("label").is_in([class_name])),
             {"train": train_split, "test": 1-train_split-val_split, "validation": val_split},
             seed=42,
         )
@@ -155,15 +155,13 @@ def create_open_animal_images_dataset(output_dir: Path, persistence: bool = Fals
     return dataset
 
 
-def load_yolo_dataset_from_disk(save_dir: Path, split: Literal['train', 'validation', 'test', 'all'] = None,
-                                max_samples: int = None, persistence: bool = False, name: str = None,
-                                unified_label_distribution: bool = False) -> fo.Dataset:
+def load_yolo_dataset_from_disk(save_dir: Path, max_samples: int = None, persistence: bool = False,
+                                name: str = None, unified_label_distribution: bool = False) -> fo.Dataset:
     """
     Loads a YOLO dataset from disk.
 
     :param save_dir: Directory where the dataset is saved in YOLO format
-    :param split: [Optional] One of 'train', 'validation', 'test' which defines the split to load.
-    :param max_samples: [Optional] Maximum number of samples to load
+    :param max_samples: [Optional] Maximum number of samples per split to load
     :param persistence: [Optional] Should the dataset be persisted in the FiftyOne DB?
     :param name: [Optional] Name of the dataset
     :param unified_label_distribution: [Optional] Should the amount of samples per class be the same, when using max_samples?
@@ -179,27 +177,25 @@ def load_yolo_dataset_from_disk(save_dir: Path, split: Literal['train', 'validat
 
     if name is None:
         name = f'{save_dir.name}'
-        if split is not None:
-            name += f'_{split}'
         if max_samples is not None:
             name += f'-{max_samples}'
 
     if name in fo.list_datasets():
-        if not persistence:
-            raise ValueError(f'The dataset {name} is already persisted in the FiftyOne DB.')
-        return fo.load_dataset(name)
-    if unified_label_distribution:
-        full_dataset = fo.Dataset.from_dir(
-            dataset_dir=save_dir,
-            dataset_type=fo.types.YOLOv5Dataset,
-            seed=42,
-            split="val" if split == "validation" else split,
-        )
+        print(f'Dataset {name} is already loaded into the FiftyOne DB.')
+        dataset = fo.load_dataset(name)
+        if persistence and not dataset.persistent:
+            dataset.persistent = True
+            print(f"The dataset {name} is wasn't persisted in the FiftyOne DB, but is now.")
+        return dataset
+
+    if unified_label_distribution and max_samples is not None:
+        full_dataset = load_yolo_dataset_from_disk(save_dir=save_dir)
         dataset = fo.Dataset(name=name)
         labels = list(full_dataset.count_values('ground_truth.detections.label').keys())
         for label in labels:
-            label_view = full_dataset.filter_labels("ground_truth", F("label").is_in([label]))
-            dataset.add_samples(label_view.take(int(max_samples/len(labels)), seed=42))
+            for split in ['train', 'validation', 'test']:
+                label_view = full_dataset.match_tags(split).filter_labels("ground_truth", F("label").is_in([label]))
+                dataset.add_samples(label_view.take(int(max_samples/len(labels)), seed=42))
     else:
         dataset = fo.Dataset.from_dir(
             dataset_dir=save_dir,
@@ -207,7 +203,24 @@ def load_yolo_dataset_from_disk(save_dir: Path, split: Literal['train', 'validat
             max_samples=max_samples,
             seed=42,
             name=name,
-            split="val" if split == "validation" else split,
+            tags='test',
+            split='test',
+        )
+        dataset.add_dir(
+            dataset_dir=save_dir,
+            dataset_type=fo.types.YOLOv5Dataset,
+            max_samples=max_samples,
+            seed=42,
+            tags='train',
+            split='train',
+        )
+        dataset.add_dir(
+            dataset_dir=save_dir,
+            dataset_type=fo.types.YOLOv5Dataset,
+            max_samples=max_samples,
+            seed=42,
+            tags='validation',
+            split='val',
         )
     dataset.persistent = persistence
     return dataset
@@ -288,8 +301,7 @@ def create_open_animal_face_images_dataset(oai_dir: Path, export_dir: Path, max_
             name += f'-{max_samples}'
 
     if name in fo.list_datasets():
-        if not persistence:
-            raise ValueError(f'The dataset {name} is already persisted in the FiftyOne DB.')
+        raise ValueError(f'The dataset {name} is already persisted in the FiftyOne DB.')
 
     save_path = Path(export_dir) / name
     if save_path.exists() and save_path.is_dir() and any(save_path.iterdir()):
@@ -321,7 +333,7 @@ def create_open_animal_face_images_dataset(oai_dir: Path, export_dir: Path, max_
         print('Images converted, now exporting ...')
         for split in ['train', 'validation', 'test']:
             # Export dataset into the yolo format
-            new_dataset.export(
+            new_dataset.match_tags(split).export(
                 dataset_type=fo.types.YOLOv5Dataset,
                 label_field="ground_truth",
                 export_dir=str(save_path),
@@ -338,10 +350,12 @@ def create_all_datasets(export_dir: Path) -> None:
     export_dir = Path(export_dir)
     create_open_animal_images_dataset(export_dir, persistence=True)
     convert_open_animal_images_to_rt_detr(export_dir / 'OpenAnimalImages', export_dir / 'OpenAnimalImages_RF-DETR')
-    # create_open_animal_face_images_dataset(export_dir / 'OpenAnimalImages', export_dir)
+    create_open_animal_face_images_dataset(export_dir / 'OpenAnimalImages', export_dir, name='OAFI_full')
 
 
 if __name__ == '__main__':
     create_all_datasets(Path('/mnt/data/afarec/data'))
+    # create_open_animal_images_dataset(Path('/mnt/data/afarec/data'), max_samples=100)
+    # create_open_animal_face_images_dataset(Path('/mnt/data/afarec/data') / 'OpenAnimalImages', Path('/mnt/data/afarec/data'), name='OAFI_full')
     # session = fo.launch_app(address='0.0.0.0')
     # session.wait(-1)

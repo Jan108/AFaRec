@@ -97,16 +97,15 @@ Done:
         - Lutz, This, Mama, Josi?, Vero?, Pepy?
     - write 4.2 datasets
     - write 4.2.1 OpenAnimalImages
+    - write script to autostart mlserv2
+    - correct counts in 4.2.1
 
 
 Heute:
     + train on mlserv yolo26 / rtdetr (wait for current run to end)
+    - update data on mlserv2
     
 Morgen:
-    - write 4.2.2 OpenAnimalFaceImages
-    - correct counts in 4.2.1
-    - update data on mlserv2
-    - write script to autostart mlserv2
 
 Next Tasks:
     - Find out which face detectors I wanna use:
@@ -115,12 +114,14 @@ Next Tasks:
         - find easiest to train
         - use active learning
         - complete one, then decide how many I need
+        - write 4.2.2 OpenAnimalFaceImages
     - write 2
     - write 2.1 Object Detection
     - write 2.1.1 YOLO
     - write 2.1.2 RF-DETR
     - write 2.1.3 RT-DETR
     - write 4.3 Object detection
+    - add example data (image with annotation) to 4.2.1
 
 | name          | APval 50:95 COCO | Link                                                                           |
 |---------------|------------------|--------------------------------------------------------------------------------|

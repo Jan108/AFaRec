@@ -207,7 +207,7 @@ def serve_image(img_id):
 
 if __name__ == '__main__':
     oafi_dataset = load_yolo_dataset_from_disk(
-        Path('/mnt/data/afarec/data/OpenAnimalFaceImages'), 'train', max_samples=2000,
+        Path('/mnt/data/afarec/data/OpenAnimalFaceImages'), max_samples=2000,
         persistence=True, name='Anno-OAFI-2000', unified_label_distribution=True
     )
     # Use to run skipped samples

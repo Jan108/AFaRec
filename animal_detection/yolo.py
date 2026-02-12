@@ -1,14 +1,14 @@
 from ultralytics import YOLO
 
 
-def train_yolo26s() -> None:
-    YOLO("yolo26s.pt").train(data="/mnt/data/afarec/data/OpenAnimalImages/dataset.yaml",
+def train_yolo26s(dataset_dir: str = '/mnt/data/afarec/data/') -> None:
+    YOLO("yolo26s.pt").train(data=dataset_dir+"OpenAnimalImages/dataset.yaml",
                              epochs=100, imgsz=640, device="cuda", batch=16, save=True, save_period=1,
                              name="yolo-s_oai_2026-02-07")
 
 
-def train_yolo26m() -> None:
-    YOLO("yolo26m.pt").train(data="/mnt/data/afarec/data/OpenAnimalImages/dataset.yaml",
+def train_yolo26m(dataset_dir: str = '/mnt/data/afarec/data/') -> None:
+    YOLO("yolo26m.pt").train(data=dataset_dir+"OpenAnimalImages/dataset.yaml",
                              epochs=100, imgsz=640, device="cuda", batch=16, save=True, save_period=1,
                              name="yolo-m_oai_2026-02-07")
 
