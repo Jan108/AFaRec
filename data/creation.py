@@ -350,12 +350,12 @@ def create_all_datasets(export_dir: Path) -> None:
     export_dir = Path(export_dir)
     create_open_animal_images_dataset(export_dir, persistence=True)
     convert_open_animal_images_to_rt_detr(export_dir / 'OpenAnimalImages', export_dir / 'OpenAnimalImages_RF-DETR')
-    create_open_animal_face_images_dataset(export_dir / 'OpenAnimalImages', export_dir, name='OAFI_full')
+    create_open_animal_face_images_dataset(export_dir / 'OpenAnimalImages', export_dir, name='OAFI_full', persistence=True)
 
 
 if __name__ == '__main__':
-    create_all_datasets(Path('/mnt/data/afarec/data'))
+    # create_all_datasets(Path('/mnt/data/afarec/data'))
     # create_open_animal_images_dataset(Path('/mnt/data/afarec/data'), max_samples=100)
     # create_open_animal_face_images_dataset(Path('/mnt/data/afarec/data') / 'OpenAnimalImages', Path('/mnt/data/afarec/data'), name='OAFI_full')
-    # session = fo.launch_app(address='0.0.0.0')
-    # session.wait(-1)
+    session = fo.launch_app(address='0.0.0.0')
+    session.wait(-1)

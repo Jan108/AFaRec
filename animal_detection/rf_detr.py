@@ -3,7 +3,9 @@ from pathlib import Path
 from typing import Any
 
 import torch
-from rfdetr import RFDETRSmall
+from rfdetr import RFDETRSmall, RFDETRMedium
+from supervision.dataset.core import DetectionDataset
+from supervision.metrics import MeanAveragePrecision
 
 
 
@@ -25,6 +27,21 @@ def resume_training() -> None:
         resume='????????????????',
     )
     pass
+
+
+def eval_model(model: RFDETRSmall | RFDETRMedium, dataset_path: str = '/mnt/data/afarec/data/OpenAnimalImages_RF-DETR/') -> None:
+    dataset = DetectionDataset.from_yolo(
+        images_directory_path=dataset_path+'test/images',
+        annotations_directory_path=dataset_path+'test/labels',
+        data_yaml_path=dataset_path+'data.yaml',
+    )
+    predictions = model.predict(images=dataset.image_paths)
+
+    map_metric = MeanAveragePrecision()
+    map_metric.update(predictions,  [dataset.annotations[img] for img in dataset.image_paths])
+    map_results = map_metric.compute()
+    print('RFDETR results:')
+    print(map_results)
 
 
 def parse_eval(log_file: Path) -> list[dict[str, Any]]:

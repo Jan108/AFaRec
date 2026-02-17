@@ -53,31 +53,14 @@ Ich will das machen, mit welchen Ansätzen, detaillierter als jetzt
 
 
 # ToDo
--[ ] AnimalCLEF 2025
-        https://ceur-ws.org/Vol-4038/paper_231.pdf -> Overview Paper
-        https://ceur-ws.org/Vol-4038/paper_240.pdf
-        https://ceur-ws.org/Vol-4038/paper_245.pdf
-        https://ceur-ws.org/Vol-4038/paper_250.pdf
-        https://ceur-ws.org/Vol-4038/paper_251.pdf
-        https://ceur-ws.org/Vol-4038/paper_253.pdf
-        https://ceur-ws.org/Vol-4038/paper_258.pdf
--[ ] my own dataset
-  - find out which annotations I need -> pet position for animal detection (coco, openimagesv7); pet face pos for pet face detection (self annotate openimagesv7?); multiple pet faces for an individual for pet recognition (pet face)
-  - plan for annotation of images based of openimagesv7 to annotate where the head is
-- Next steps:
-  - send mail to profs
-  - start with animal detection
-      - plan what to compare: yolo v11s on oai, yolo v11s default, different model?
-        - see table below
-        - run OpenAnimalImages test split on all models
-        - For each model train on OAI, so that there are then 2 models, fine tuned/standart
-        - results in 8 models
-      - how to eval this? -> build custom evaluation based on wanted task (image in, class with pos out or not found)
-        - can fiftyone do this? or do I need to build my own pipeline (inference with image path in; predictions out)
-        - ultralytics can do it for yolo and rt-detr: https://docs.ultralytics.com/modes/val/
-        - needs to eval on OAI test (is this used elsewhere?) and if it says there is non present
-      - train and eval those models
-      - write it down
+AnimalCLEF 2025
+https://ceur-ws.org/Vol-4038/paper_231.pdf -> Overview Paper
+https://ceur-ws.org/Vol-4038/paper_240.pdf
+https://ceur-ws.org/Vol-4038/paper_245.pdf
+https://ceur-ws.org/Vol-4038/paper_250.pdf
+https://ceur-ws.org/Vol-4038/paper_251.pdf
+https://ceur-ws.org/Vol-4038/paper_253.pdf
+https://ceur-ws.org/Vol-4038/paper_258.pdf
 
 Done:
     - Motivation schreiben
@@ -99,13 +82,18 @@ Done:
     - write 4.2.1 OpenAnimalImages
     - write script to autostart mlserv2
     - correct counts in 4.2.1
-
+    - write 2
+    + update data on mlserv2
+    - write 2.1 Object Detection
+    - write 2.1.1 YOLO
+    - write 2.1.2 RF-DETR
+    + train on mlserv yolo26 / rtdetr (wait for current run to end)
 
 Heute:
-    + train on mlserv yolo26 / rtdetr (wait for current run to end)
-    - update data on mlserv2
+    - write 4.3 Object detection
     
 Morgen:
+    - problem with evaluation, identical ground truth for same animal, low confidence score
 
 Next Tasks:
     - Find out which face detectors I wanna use:
@@ -115,18 +103,8 @@ Next Tasks:
         - use active learning
         - complete one, then decide how many I need
         - write 4.2.2 OpenAnimalFaceImages
-    - write 2
-    - write 2.1 Object Detection
-    - write 2.1.1 YOLO
-    - write 2.1.2 RF-DETR
-    - write 2.1.3 RT-DETR
-    - write 4.3 Object detection
     - add example data (image with annotation) to 4.2.1
+    - train RF-Detr on mlserv2 (wait for disk space)
 
-| name          | APval 50:95 COCO | Link                                                                           |
-|---------------|------------------|--------------------------------------------------------------------------------|
-| yolo v11s     | 47,0             | https://docs.ultralytics.com/models/yolo11/#performance-metrics                |
-| yolo v12s     | 48,0             | https://docs.ultralytics.com/models/yolo12/#detection-performance-coco-val2017 |
-| RT-DETRv2-S   | 48,1             | https://github.com/lyuwenyu/RT-DETR/tree/main/rtdetrv2_pytorch https://colab.research.google.com/github/qubvel/transformers-notebooks/blob/main/notebooks/RT_DETR_v2_finetune_on_a_custom_dataset.ipynb                |
-| RT-DETRv3-R18 | 48,1             | https://github.com/clxia12/RT-DETRv3                                           |
-| RF-DETR-S     | 53,0             | https://github.com/roboflow/rf-detr https://rfdetr.roboflow.com/learn/train/   |
+Paused:
+    - write 2.1.3 RT-DETR

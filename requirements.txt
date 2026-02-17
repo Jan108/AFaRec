@@ -14,3 +14,4 @@ torchmetrics
 rfdetr
 flask
 Flask-HTTPAuth
+supervision==0.27.0
