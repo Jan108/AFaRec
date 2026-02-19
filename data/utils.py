@@ -31,3 +31,25 @@ def convert_fo_bbox_to_absolute(bbox: tuple[int, int, int, int], img_height: int
     xmin = minmax_abs(xmin, img_width)
     ymin = minmax_abs(ymin, img_height)
     return xmin, ymin, xmax, ymax
+
+
+def convert_xyxy_to_xyhwn(xyxy: tuple[int, int, int, int], img_height: int,
+                          img_width: int) -> tuple[float, float, float, float]:
+    """
+    Convert bounding box from xyxy format to xywhn format
+    :param xyxy: BBox in xyxy format xmin, ymin, xmax, ymax
+    :param img_height: Image height
+    :param img_width: Image width
+    :return: normalized xmin, ymin, width, height
+    """
+    x_min, y_min, x_max, y_max = xyxy
+
+    width = x_max - x_min
+    height = y_max - y_min
+
+    x_min_norm = x_min / img_width
+    y_min_norm = y_min / img_height
+    width_norm = width / img_width
+    height_norm = height / img_height
+
+    return x_min_norm, y_min_norm, width_norm, height_norm

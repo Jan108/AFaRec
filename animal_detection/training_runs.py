@@ -3,8 +3,8 @@ import logging
 from datetime import datetime
 import time
 
-from yolo import train_yolo26s, train_yolo26m
-from rt_detr import train_rtdetr_v1_l
+from yolo import train_yolo26s, train_yolo26m, resume_yolo26s, resume_yolo26m
+from rf_detr import train_rfdetr_s, resume_rfdetr_s
 
 # Configure logging
 logging.basicConfig(
@@ -35,14 +35,17 @@ def run_with_error_handling(func, func_name):
         error_msg = f"Function '{func_name}' failed after {duration:.2f} seconds: {str(e)}\n{traceback.format_exc()}"
         error_logger.error(error_msg)
         logging.error(f"Function '{func_name}' failed: {str(e)}")
-        return {"success": False, "duration": duration, "error": str(e)}
+        return {"success": False, "duration": duration, "error": str(e.args[0])}
 
 def main():
     # Define your functions to run
     functions = [
         (train_yolo26s, "YOLO26s"),
+        # (resume_yolo26s, "YOLO26s"),
         (train_yolo26m, "YOLO26m"),
-        (train_rtdetr_v1_l, "RT-DETR V1 L"),
+        # (resume_yolo26m, "YOLO26m"),
+        (train_rfdetr_s, "RF-DETR S"),
+        # (resume_rfdetr_s, "RF-DETR S"),
     ]
 
     results = []

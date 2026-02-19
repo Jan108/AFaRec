@@ -7,6 +7,7 @@ import fiftyone as fo
 import fiftyone.zoo as foz
 import fiftyone.utils.random as four
 from fiftyone import ViewField as F
+import fiftyone.utils.iou as foui
 from PIL import Image
 
 from tqdm import tqdm
@@ -23,12 +24,29 @@ fo.config.dataset_zoo_dir = Path('/mnt/data/afarec/data')
 fo.config.database_uri = 'mongodb://127.0.0.1:27017'
 fo.config.database_validation = False
 
+def get_coco_mapping() -> dict[str, list[str]]:
+    """
+    Definition of the mapping from COCO to OpenAnimalImages dataset.
 
-def _get_open_image_mappings() -> dict[str, list[str]]:
+    :return: Dictionary with key as the class in OpenAnimalImages and the value is a list of Classes from COCO
+    """
+    bird = ['bird']
+    cat_like = []
+    dog_like = []
+    cat = ['cat']
+    dog = ['dog']
+    horse_like = ['horse']
+    small_animals = []
+
+    return {'bird': bird, 'cat': cat, 'cat_like': cat_like, 'dog': dog, 'dog_like': dog_like, 'horse_like':
+        horse_like, 'small_animals': small_animals}
+
+
+def get_open_image_mappings() -> dict[str, list[str]]:
     """
     Definition of the mapping from OpenImagesV7 to OpenAnimalImages dataset.
 
-    :return:
+    :return: Dictionary with key as the class in OpenAnimalImages and the value is a list of Classes from OpenImageV7
     """
     # Create mapping of OpenImage classes to my own classes and reduce the number
     # removed Bird from mapping, because of amount of images (50k) and quality of label
@@ -105,7 +123,7 @@ def create_open_animal_images_dataset(output_dir: Path, persistence: bool = Fals
         max_samples=max_samples,
     )
 
-    new_mappings = _get_open_image_mappings()
+    new_mappings = get_open_image_mappings()
 
     reversed_mapping = {}
     for key, value in new_mappings.items():
@@ -116,6 +134,12 @@ def create_open_animal_images_dataset(output_dir: Path, persistence: bool = Fals
 
     # Filter after only the classes I want to work with
     view = view.filter_labels("ground_truth", F("label").is_in(list(new_mappings.keys())))
+
+    # Remove duplicates
+    dup_ids = foui.find_duplicates(
+        view, "ground_truth", iou_thresh=0.5, classwise=True
+    )
+    view = view.exclude_labels(ids=dup_ids)
 
     dataset.add_samples(view)
 
@@ -137,7 +161,7 @@ def create_open_animal_images_dataset(output_dir: Path, persistence: bool = Fals
                 dataset_type=fo.types.YOLOv5Dataset,
                 label_field="ground_truth",
                 export_dir=str(save_path_yolo),
-                classes=list(_get_open_image_mappings().keys()),
+                classes=list(get_open_image_mappings().keys()),
                 split="val" if split == "validation" else split,
                 overwrite=False,
             )
@@ -148,7 +172,7 @@ def create_open_animal_images_dataset(output_dir: Path, persistence: bool = Fals
                 dataset_type=fo.types.COCODetectionDataset,
                 label_field="ground_truth",
                 export_dir=str(save_path_coco / split),
-                classes=list(_get_open_image_mappings().keys()),
+                classes=list(get_open_image_mappings().keys()),
                 overwrite=False,
             )
 
@@ -226,7 +250,7 @@ def load_yolo_dataset_from_disk(save_dir: Path, max_samples: int = None, persist
     return dataset
 
 
-def convert_open_animal_images_to_rt_detr(input_dir: Path, output_dir: Path) -> None:
+def convert_open_animal_images_to_rf_detr(input_dir: Path, output_dir: Path) -> None:
     """
     Converts the exported OpenAnimalImages YOLO dataset into a format so that RF-DETR can work with it.
 
@@ -337,7 +361,7 @@ def create_open_animal_face_images_dataset(oai_dir: Path, export_dir: Path, max_
                 dataset_type=fo.types.YOLOv5Dataset,
                 label_field="ground_truth",
                 export_dir=str(save_path),
-                classes=list(_get_open_image_mappings().keys()),
+                classes=list(get_open_image_mappings().keys()),
                 split="val" if split == "validation" else split,
                 overwrite=False,
             )
@@ -349,7 +373,7 @@ def create_all_datasets(export_dir: Path) -> None:
     fo.delete_non_persistent_datasets()
     export_dir = Path(export_dir)
     create_open_animal_images_dataset(export_dir, persistence=True)
-    convert_open_animal_images_to_rt_detr(export_dir / 'OpenAnimalImages', export_dir / 'OpenAnimalImages_RF-DETR')
+    convert_open_animal_images_to_rf_detr(export_dir / 'OpenAnimalImages', export_dir / 'OpenAnimalImages_RF-DETR')
     create_open_animal_face_images_dataset(export_dir / 'OpenAnimalImages', export_dir, name='OAFI_full', persistence=True)
 
 
@@ -357,5 +381,6 @@ if __name__ == '__main__':
     # create_all_datasets(Path('/mnt/data/afarec/data'))
     # create_open_animal_images_dataset(Path('/mnt/data/afarec/data'), max_samples=100)
     # create_open_animal_face_images_dataset(Path('/mnt/data/afarec/data') / 'OpenAnimalImages', Path('/mnt/data/afarec/data'), name='OAFI_full')
+
     session = fo.launch_app(address='0.0.0.0')
     session.wait(-1)

@@ -88,12 +88,18 @@ Done:
     - write 2.1.1 YOLO
     - write 2.1.2 RF-DETR
     + train on mlserv yolo26 / rtdetr (wait for current run to end)
+    - write 4.3 Object detection
+    - dedupe oai t=0.5
+    - rerun oafi
+    - update 4.2.1 with deduplication
 
 Heute:
-    - write 4.3 Object detection
-    
+    - update data on mlserv2
+    - write eval functions -> reproducability baseline+finetune, yolo26s/m, rfdetr-s/m
+        - with confusion matrix like yolo train
+        - test with different confidence scores
+
 Morgen:
-    - problem with evaluation, identical ground truth for same animal, low confidence score
 
 Next Tasks:
     - Find out which face detectors I wanna use:
@@ -104,7 +110,11 @@ Next Tasks:
         - complete one, then decide how many I need
         - write 4.2.2 OpenAnimalFaceImages
     - add example data (image with annotation) to 4.2.1
-    - train RF-Detr on mlserv2 (wait for disk space)
+    - train again on mlserv2 yolo / rfdetr (less epochs)
+
+Talk with Tobi:
+    - How do I do baseline with YOLO26 because of missing classes in pretrained model
+
 
 Paused:
     - write 2.1.3 RT-DETR
