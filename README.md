@@ -94,12 +94,18 @@ Done:
     - update 4.2.1 with deduplication
 
 Heute:
-    - update data on mlserv2
-    - write eval functions -> reproducability baseline+finetune, yolo26s/m, rfdetr-s/m
+    + update data on mlserv2
+    + write eval functions -> reproducability baseline+finetune, yolo26s/m, rfdetr-s/m
         - with confusion matrix like yolo train
-        - test with different confidence scores
 
 Morgen:
+    - Analyze face detectors how to train?
+    - Nachricht Pepy
+
+Plan Fragen:
+    - Frist Studienbüro Abgabe Mail / Briefkasten
+    - Mail Prof Vortrag?
+    - bis ~10.03. Klärung wann Vortrag, damit ich weiß Teilzeitstudium und mit LSW reden
 
 Next Tasks:
     - Find out which face detectors I wanna use:
