@@ -79,6 +79,9 @@
             </div>
         </div>
         <div class="col-md-2">
+            Anleitung:<br>
+            Mit der Linken Maustaste auf die vier äußeren Punkte klicken.<br>
+            <br>
             Tastaturkürzel:<br>
             W / S - Horizontale<br>
             A / D - Vertikale<br>
@@ -88,7 +91,9 @@
             Kürzel zum Abgeben:<br>
             R - Überspringen<br>
             Q - Nicht nutzbar<br>
-            F - Absenden
+            F - Absenden<br>
+            <br>
+
         </div>
     </div>
 
@@ -201,8 +206,8 @@
                 fill: 'transparent',
                 stroke: 'red',
                 strokeWidth: 3,
-                selectable: true,
-                hasControls: true,
+                selectable: false,
+                hasControls: false,
                 hasBorders: true,
                 lockRotation: true,
                 objectCaching: false,
@@ -228,6 +233,50 @@
                 update_form();
             });
 
+            const finishChange = function () {
+                rect.top = Math.min(imgHeight, Math.max(0, rect.top));
+                rect.height = Math.min(imgHeight - rect.top, Math.max(5, rect.height));
+                rect.left = Math.min(imgWidth, Math.max(0, rect.left));
+                rect.width = Math.min(imgWidth - rect.left, Math.max(5, rect.width));
+                rect.setCoords();
+                canvas.renderAll();
+                update_form();
+            };
+
+            let points = [];
+            canvas.on('mouse:down', function (options) {
+                if (options.button === 1) {
+                    const pointer = options.absolutePointer;
+                    const x = pointer.x;
+                    const y = pointer.y;
+
+                    points.push({x, y});
+                    console.log("Collected points:", points);
+
+                    if (points.length === 4) {
+                        // Determine the bounding rectangle
+                        const left = Math.min(...points.map(p => p.x));
+                        const top = Math.min(...points.map(p => p.y));
+                        const right = Math.max(...points.map(p => p.x));
+                        const bottom = Math.max(...points.map(p => p.y));
+
+                        const width = right - left;
+                        const height = bottom - top;
+
+                        console.log("Bounding rectangle:", {left, top, width, height});
+
+                        rect.left = left;
+                        rect.top = top;
+                        rect.width = width;
+                        rect.height = height;
+                        finishChange();
+
+                        // Reset points for the next set
+                        points = [];
+                    }
+                }
+            });
+
             let isSpacePressed = false;
 
 // Track Spacebar state
@@ -248,15 +297,6 @@
 
                 const moveStep = isSpacePressed ? 50 : 5;
                 const isCtrlPressed = e.shiftKey;
-                const finishChange = function () {
-                    rect.top = Math.min(imgHeight, Math.max(0, rect.top));
-                    rect.height = Math.min(imgHeight - rect.top, Math.max(5, rect.height));
-                    rect.left = Math.min(imgWidth, Math.max(0, rect.left));
-                    rect.width = Math.min(imgWidth - rect.left, Math.max(5, rect.width));
-                    rect.setCoords();
-                    canvas.renderAll();
-                    update_form();
-                };
                 requestAnimationFrame(() => {
                     if (isCtrlPressed) {
                         switch (e.key.toLowerCase()) {

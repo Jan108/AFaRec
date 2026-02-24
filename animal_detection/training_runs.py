@@ -3,6 +3,8 @@ import logging
 from datetime import datetime
 import time
 
+import torch
+
 from yolo import train_yolo26s, train_yolo26m, resume_yolo26s, resume_yolo26m
 from rf_detr import train_rfdetr_s, resume_rfdetr_s
 
@@ -19,7 +21,7 @@ error_logger = logging.getLogger('error_logger')
 error_logger.addHandler(logging.FileHandler("training_errors.log"))
 error_logger.setLevel(logging.ERROR)
 
-dataset_dir = ''
+dataset_dir = '/mnt/data/afarec/data/'
 
 
 def run_with_error_handling(func, func_name):
@@ -68,4 +70,5 @@ def main():
     logging.info("="*60)
 
 if __name__ == "__main__":
+    torch.cuda.memory.set_per_process_memory_fraction(0.9, device=0)
     main()

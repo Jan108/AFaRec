@@ -369,12 +369,129 @@ def create_open_animal_face_images_dataset(oai_dir: Path, export_dir: Path, max_
             print(f'Split {split} exported.')
 
 
+def export_labels_to_yunet(dataset: fo.Dataset) -> None:
+    """
+    Export labels into txt file to use with Yunet.
+    :param dataset: OpenAnimalFaceImages dataset
+    :return: None
+    """
+    export_dir = Path(dataset.first().filepath).parent.parent.parent / 'labels_yunet'
+    export_dir.mkdir(parents=True, exist_ok=True)
+    if any(export_dir.iterdir()):
+        raise FileExistsError(f'The directory {export_dir} already exists and is not empty.')
+    for split in ['train', 'validation', 'test']:
+        view = dataset.match_tags(split)
+        cur_file = export_dir / f'labels_{split}.txt'
+        with cur_file.open(mode='w') as f:
+            for sample in view:
+                sample: fo.Sample
+                sample.compute_metadata()
+                img_height = sample.metadata.height
+                img_width = sample.metadata.width
+                lines = [f'# {sample.filename} {img_width} {img_height}']
+
+                for det in sample.ground_truth.detections:
+                    bbox = utils.convert_fo_bbox_to_absolute(det.bounding_box, img_height, img_width)
+                    lines.append(f'{bbox}')
+
+                f.writelines(lines)
+            f.flush()
+
+
 def create_all_datasets(export_dir: Path) -> None:
     fo.delete_non_persistent_datasets()
     export_dir = Path(export_dir)
     create_open_animal_images_dataset(export_dir, persistence=True)
     convert_open_animal_images_to_rf_detr(export_dir / 'OpenAnimalImages', export_dir / 'OpenAnimalImages_RF-DETR')
     create_open_animal_face_images_dataset(export_dir / 'OpenAnimalImages', export_dir, name='OAFI_full', persistence=True)
+
+
+def fix_copy_anno_to_oafi() -> None:
+    anno_oafi = fo.load_dataset('Anno-OAFI-2000')
+    oafi = fo.load_dataset('OAFI_full')
+
+    filenames = oafi.values('filepath')
+    prefix_counts = dict()
+    for n in filenames:
+        k = Path(n).name.split('_')[0]
+        if k in prefix_counts.keys():
+            prefix_counts[k].append(n)
+        else:
+            prefix_counts[k] = [n]
+
+    for anno_sample in anno_oafi:
+        anno_sample.compute_metadata()
+        anno_prefix = anno_sample.filename.split('_')[0]
+        oafi_faces = prefix_counts[anno_prefix]
+        matched = False
+        for oafi_face in oafi_faces:
+            oafi_sample = oafi[oafi_face]
+            oafi_sample.compute_metadata()
+            if oafi_sample.metadata == anno_sample.metadata:
+                print(f'Found match {oafi_face} : {anno_sample.filename}')
+                matched = True
+                if 'annotated' in anno_sample.tags:
+                    oafi_sample.tags.extend(anno_sample.tags)
+                    oafi_sample.ground_truth = anno_sample.ground_truth
+                    anno_time = anno_sample['annotation_time']
+                    if anno_time is None:
+                        anno_time = -1
+                    oafi_sample['annotation_time'] = anno_time
+                else:
+                    oafi_sample.tags.append('anno_needed')
+                oafi_sample.save()
+                break
+        if not matched:
+            print(f'{anno_sample.filepath} does not have a match in OAFI...')
+
+
+def print_matrix():
+    oafi = fo.load_dataset('OAFI_full')
+
+    counts = dict()
+    labels = list(oafi.count_values('ground_truth.detections.label').keys())
+    print(f'{'label':>14s} |  {'train':^20s}  :  {'validation':^20s}  :  {'test':^20s}  |  {'sum':^5s}  :  {'all':^5s}')
+    for label in labels:
+        label_view = oafi.filter_labels('ground_truth', F('label').is_in([label]))
+        label_dict = dict()
+        line = []
+        sum_anno = 0
+        sum_all = 0
+        for split in ['train', 'validation', 'test']:
+            ls_tags = label_view.match_tags(split).count_sample_tags()
+            anno_needed = ls_tags.get('anno_needed', 0)
+            annotated = ls_tags.get('annotated', 0)
+            no_face = ls_tags.get('no_face', 0)
+            s_count = ls_tags.get(split, 0)
+            label_dict[split] = (anno_needed, annotated, no_face, s_count)
+            sum_anno += anno_needed+annotated-no_face
+            sum_all += s_count
+            line.append(f'{anno_needed:4d} {annotated:4d} {no_face:4d} {s_count:5d}')
+        print(f'{label:>14s} |  {line[0]}  :  {line[1]}  :  {line[2]}  |  {sum_anno:5d}  :  {sum_all:5d}')
+        counts[label] = label_dict
+
+    i = input('fix matrix?')
+    if not i == 'yes':
+        return
+
+    take_by_split = {
+        'train': 210,
+        'validation': 45,
+        'test': 45,
+    }
+    new_samples = oafi.match_tags(('annotated', 'anno_needed'), bool=False)
+    for label in labels:
+        label_view = new_samples.filter_labels("ground_truth", F("label").is_in([label]))
+        for split in ['train', 'validation', 'test']:
+            amount = counts[label][split][0] + counts[label][split][1]
+            missing = take_by_split[split]-amount
+            if missing <= 0:
+                oafi_label_view = oafi.match_tags(split).filter_labels("ground_truth", F("label").is_in([label]))
+                face_split_view = oafi_label_view.match_tags('anno_needed', bool=True)
+                removed_samples = face_split_view.take(missing, seed=42)
+                removed_samples.untag_samples('anno_needed')
+            else:
+                label_view.match_tags(split).take(missing, seed=42).tag_samples('anno_needed')
 
 
 if __name__ == '__main__':

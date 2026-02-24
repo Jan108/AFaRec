@@ -8,13 +8,13 @@ RUN_DIR = '/mnt/data/afarec/code/runs/detect/'
 
 def train_yolo26s(dataset_dir: str = '/mnt/data/afarec/data/') -> None:
     YOLO("yolo26s.pt").train(data=dataset_dir+"OpenAnimalImages/dataset.yaml",
-                             epochs=100, imgsz=640, device="cuda", batch=64, save=True, save_period=1,
+                             epochs=100, imgsz=640, device="cuda", batch=16, save=True, save_period=1,
                              name="yolo-s_2026-02-19")
 
 
 def train_yolo26m(dataset_dir: str = '/mnt/data/afarec/data/') -> None:
     YOLO("yolo26m.pt").train(data=dataset_dir+"OpenAnimalImages/dataset.yaml",
-                             epochs=100, imgsz=640, device="cuda", batch=64, save=True, save_period=1,
+                             epochs=100, imgsz=640, device="cuda", batch=16, save=True, save_period=1,
                              name="yolo-m_2026-02-19")
 
 

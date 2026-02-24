@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, redirect, url_for, send_file
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 import fiftyone as fo
+from fiftyone import ViewField as F
 
 from creation import load_yolo_dataset_from_disk
 
@@ -19,6 +20,12 @@ users = {
     "birgit": generate_password_hash("jannilslutzthisbirgitthomas"),
     "this": generate_password_hash("jannilslutzthisbirgitthomas"),
     "lutz": generate_password_hash("jannilslutzthisbirgitthomas"),
+}
+
+take_by_split = {
+    'train': 14,
+    'validation': 3,
+    'test': 3,
 }
 
 
@@ -100,6 +107,8 @@ def update_annotation(img_id: str, no_face: bool, bbox: list[float],
 
     if 'skipped' in sample.tags:
         sample.tags.remove('skipped')
+    if 'anno_needed' in sample.tags:
+        sample.tags.remove('anno_needed')
     sample.tags.append('annotated')
     sample.save()
 
@@ -110,13 +119,29 @@ def get_unlabeled_sample(only_skipped: bool = False) -> fo.Sample | None:
     Except if there are no other samples left. Returns None when there are no samples left.
     :return: unlabeled sample or None
     """
-    unlabeled_samples = oafi_dataset.match_tags('annotated', bool=False)
+    unlabeled_samples = oafi_dataset.match_tags('anno_needed', bool=True)
     if only_skipped:
-        unlabeled_samples = unlabeled_samples.match_tags('skipped', bool=True)
+        unlabeled_samples = oafi_dataset.match_tags('skipped', bool=True)
     else:
         unlabeled_samples = unlabeled_samples.match_tags('skipped', bool=False)
     if unlabeled_samples.count() == 0:
-        return None
+        # Add new Samples to anno_needed
+        labels = list(oafi_dataset.count_values('ground_truth.detections.label').keys())
+        missing_samples = oafi_dataset.match_tags('annotated', bool=False)
+        for label in labels:
+            label_view = missing_samples.filter_labels("ground_truth", F("label").is_in([label]))
+            for split in ['train', 'validation', 'test']:
+                label_view.match_tags(split).take(take_by_split[split], seed=42).tag_samples('anno_needed')
+
+        # Check again if there are no samples to annotate
+        unlabeled_samples = oafi_dataset.match_tags('anno_needed', bool=True)
+        if only_skipped:
+            unlabeled_samples = oafi_dataset.match_tags('skipped', bool=True)
+        else:
+            unlabeled_samples = unlabeled_samples.match_tags('skipped', bool=False)
+
+        if unlabeled_samples.count() == 0:
+            return None
     update_timeout()
     unlabeled_sample: fo.Sample = None
     for sample in unlabeled_samples:
@@ -171,12 +196,13 @@ def index():
 
     # Compute / Get relevant information
     filter_tags = ('annotated', 'skipped')
+    filter_tags_needed = 'anno_needed'
     if include_skipped:
         filter_tags = 'annotated'
     count_labeled = oafi_dataset.match_tags(filter_tags, bool=True).count()
-    count_unlabeled = oafi_dataset.match_tags(filter_tags, bool=False).count()
+    count_unlabeled = oafi_dataset.match_tags(filter_tags_needed, bool=True).count()
     count_skipped = oafi_dataset.match_tags('skipped', bool=True).count()
-    pct_labeled = round((count_labeled / oafi_dataset.count()) * 100, 2)
+    pct_labeled = round((count_labeled / (count_labeled+count_unlabeled+count_skipped)) * 100, 2)
     img_id = unlabeled_sample.id
     img_height = unlabeled_sample.metadata['height']
     img_width = unlabeled_sample.metadata['width']
@@ -207,8 +233,8 @@ def serve_image(img_id):
 
 if __name__ == '__main__':
     oafi_dataset = load_yolo_dataset_from_disk(
-        Path('/mnt/data/afarec/data/OpenAnimalFaceImages'), max_samples=2000,
-        persistence=True, name='Anno-OAFI-2000', unified_label_distribution=True
+        Path('/mnt/data/afarec/data/OAFI_full'),
+        persistence=True, name='OAFI_full'
     )
     # Use to run skipped samples
     # include_skipped = True

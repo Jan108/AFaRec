@@ -92,9 +92,3 @@ def parse_eval(log_file: Path) -> list[dict[str, Any]]:
         for line in f:
             eval_data.append(json.loads(line))
     return eval_data
-
-
-if __name__ == '__main__':
-    torch.cuda.memory.set_per_process_memory_fraction(0.9, device=0)
-    train_model()
-    # resume_training()
