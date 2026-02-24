@@ -373,14 +373,16 @@ def export_labels_to_yunet(dataset: fo.Dataset) -> None:
     """
     Export labels into txt file to use with Yunet.
     :param dataset: OpenAnimalFaceImages dataset
+    :param filter_tags: List of tags to filter. Default ['annotated']
     :return: None
     """
     export_dir = Path(dataset.first().filepath).parent.parent.parent / 'labels_yunet'
     export_dir.mkdir(parents=True, exist_ok=True)
     if any(export_dir.iterdir()):
         raise FileExistsError(f'The directory {export_dir} already exists and is not empty.')
+
     for split in ['train', 'validation', 'test']:
-        view = dataset.match_tags(split)
+        view = dataset.match_tags(split).match_tags('annotated').match_tags('no_face', bool=False)
         cur_file = export_dir / f'labels_{split}.txt'
         with cur_file.open(mode='w') as f:
             for sample in view:
@@ -388,11 +390,11 @@ def export_labels_to_yunet(dataset: fo.Dataset) -> None:
                 sample.compute_metadata()
                 img_height = sample.metadata.height
                 img_width = sample.metadata.width
-                lines = [f'# {sample.filename} {img_width} {img_height}']
+                lines = [f'# {sample.filename} {img_width} {img_height}\n']
 
                 for det in sample.ground_truth.detections:
                     bbox = utils.convert_fo_bbox_to_absolute(det.bounding_box, img_height, img_width)
-                    lines.append(f'{bbox}')
+                    lines.append(f'{bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]} -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1\n')
 
                 f.writelines(lines)
             f.flush()

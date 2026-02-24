@@ -33,7 +33,12 @@ Dogs, Cats, Fish, Birds (Parrots, ...), Small animal (Hamsters, Rabbits, Guinea 
 10. Alter ```libfacedetection.train/mmdet/datasets/pipelines/transforms.py:1082``` ```np.int``` -> ```np.int64```
 11. Prepare data: Follow https://github.com/ShiqiYu/libfacedetection.train Readme.md
 12. Train: ```CUDA_VISIBLE_DEVICES=0 bash tools/dist_train.sh ./configs/yunet_n.py 1 12345```
-
+13. Alter ```libfacedetection.train/tools/train.py:212``` and add following lines
+```python
+if cfg.load_from:
+    from mmcv.runner import load_checkpoint
+    checkpoint = load_checkpoint(model, cfg.load_from, map_location='cuda')
+```
 
 # ToDo
 AnimalCLEF 2025
