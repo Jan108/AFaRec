@@ -19,7 +19,7 @@ dist_params = dict(backend='nccl')
 log_level = 'INFO'
 load_from = '/mnt/data/afarec/code/face_detection/yunet/libfacedetection.train/weights/yunet_n.pth'
 resume_from = None
-workflow = [('train', 5)]
+workflow = [('train', 1)]
 dataset_type = 'RetinaFaceDataset'
 data_root = '/mnt/data/afarec/data/OAFI_full'
 train_root = '/mnt/data/afarec/data/OAFI_full/images/train'
@@ -31,7 +31,7 @@ data = dict(
     workers_per_gpu=4,
     train=dict(
         type='RetinaFaceDataset',
-        ann_file='/mnt/data/afarec/data/OAFI_full/labels_yunet/labels_train.txt',
+        ann_file='/mnt/data/afarec/data/OAFI_full/labels_yunet/labels_horse_like_train.txt',
         img_prefix='/mnt/data/afarec/data/OAFI_full/images/train/',
         pipeline=[
             dict(type='LoadImageFromFile', to_float32=True),
@@ -56,7 +56,7 @@ data = dict(
         ]),
     val=dict(
         type='RetinaFaceDataset',
-        ann_file='/mnt/data/afarec/data/OAFI_full/labels_yunet/labels_validation.txt',
+        ann_file='/mnt/data/afarec/data/OAFI_full/labels_yunet/labels_horse_like_validation.txt',
         img_prefix='/mnt/data/afarec/data/OAFI_full/images/val/',
         pipeline=[
             dict(type='LoadImageFromFile'),
@@ -79,7 +79,7 @@ data = dict(
         ]),
     test=dict(
         type='RetinaFaceDataset',
-        ann_file='/mnt/data/afarec/data/OAFI_full/labels_yunet/labels_test.txt',
+        ann_file='/mnt/data/afarec/data/OAFI_full/labels_yunet/labels_horse_like_test.txt',
         img_prefix='/mnt/data/afarec/data/OAFI_full/images/test/',
         pipeline=[
             dict(type='LoadImageFromFile'),

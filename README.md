@@ -86,17 +86,22 @@ Done:
     + train again on me yolo / rfdetr (less epochs)
     - adapt oafi_annotation with correct dataset and tags
     - fix current oafi needed_anno
+    - train yunet
+        - try their train method on wide faces -> wait for training done -> works
+        - try on my data -> wait for training done
+        - fine tune on pre weight? -> not possible currently
+            - maybe use torch2onnx.py there model is loaded, adapt for train.py, could work \-_-/
+    
 
 Heute:
     - train rfdetr on mlserv2
 
 Morgen:
     - Tobis anmerkungen einarbeiten
-    - train yunet
-        - try their train method on wide faces -> wait for training done -> works
-        - try on my data -> wait for training done
-        - fine tune on pre weight? -> not possible currently
-            - maybe use torch2onnx.py there model is loaded, adapt for train.py, could work \-_-/
+    - write eval yunet
+        - train all classes; train one per class
+        - predict into fiftyone?
+        - eval all classes/per class; eval all
     - do I need landmarks? -> CenterFace and retinaFace use them, but I'm not sure if they NEED them
         - find out -> I guess it works with out them, yunet should, but better with maybe?
         - alter label process?
@@ -111,9 +116,6 @@ Next Tasks:
     - Find out which face detectors I wanna use:
         - List Sota approaches -> good framing why i use those models 3 is good 
         - try some with a lower confidence
-        - find easiest to train
-        - use active learning
-        - complete one, then decide how many I need
         - write 4.2.2 OpenAnimalFaceImages
     - add example data (image with annotation) to 4.2.1
     - write eval animal detection

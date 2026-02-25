@@ -383,21 +383,64 @@ def export_labels_to_yunet(dataset: fo.Dataset) -> None:
 
     for split in ['train', 'validation', 'test']:
         view = dataset.match_tags(split).match_tags('annotated').match_tags('no_face', bool=False)
-        cur_file = export_dir / f'labels_{split}.txt'
-        with cur_file.open(mode='w') as f:
-            for sample in view:
-                sample: fo.Sample
-                sample.compute_metadata()
-                img_height = sample.metadata.height
-                img_width = sample.metadata.width
-                lines = [f'# {sample.filename} {img_width} {img_height}\n']
+        for classes in ['all', 'bird', 'cat', 'cat_like', 'dog', 'dog_like', 'horse_like', 'small_animals']:
+            cur_file = export_dir / f'labels_{classes}_{split}.txt'
+            if classes == 'all':
+                cls_view = view
+            else:
+                cls_view = view.filter_labels('ground_truth', F('label').is_in([classes]))
+            with cur_file.open(mode='w') as f:
+                for sample in cls_view:
+                    sample: fo.Sample
+                    sample.compute_metadata()
+                    img_height = sample.metadata.height
+                    img_width = sample.metadata.width
+                    lines = [f'# {sample.filename} {img_width} {img_height}\n']
 
-                for det in sample.ground_truth.detections:
-                    bbox = utils.convert_fo_bbox_to_absolute(det.bounding_box, img_height, img_width)
-                    lines.append(f'{bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]} -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1\n')
+                    for det in sample.ground_truth.detections:
+                        bbox = utils.convert_fo_bbox_to_absolute(det.bounding_box, img_height, img_width)
+                        lines.append(f'{bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]} -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1\n')
 
-                f.writelines(lines)
-            f.flush()
+                    f.writelines(lines)
+                f.flush()
+
+
+def import_prediction_from_yunet(dataset: fo.Dataset, import_dir: Path, field_name: str) -> None:
+    dataset.compute_metadata()
+    pred_dir = Path(import_dir)
+
+    for sample in dataset:
+        img_name = Path(sample.filepath).stem
+        txt_path = pred_dir / f"{img_name}.txt"
+        if not txt_path.exists():
+            continue
+
+        detections = []
+        with txt_path.open("r") as f:
+            for line in f:
+                parts = line.strip().split()
+                if not parts:
+                    continue
+
+                x, y, w, h, conf = map(float, parts)
+
+                w_img, h_img = sample.metadata.width, sample.metadata.height
+                nx = x / w_img
+                ny = y / h_img
+                nw = w / w_img
+                nh = h / h_img
+                bbox = [nx, ny, nw, nh]
+
+                detections.append(
+                    fo.Detection(
+                        label='face',
+                        bounding_box=bbox,
+                        confidence=conf,
+                    )
+                )
+
+        sample[field_name] = fo.Detections(detections=detections)
+        sample.save()
 
 
 def create_all_datasets(export_dir: Path) -> None:
@@ -452,12 +495,15 @@ def print_matrix():
 
     counts = dict()
     labels = list(oafi.count_values('ground_truth.detections.label').keys())
-    print(f'{'label':>14s} |  {'train':^20s}  :  {'validation':^20s}  :  {'test':^20s}  |  {'sum':^5s}  :  {'all':^5s}')
+    sum_all_anno = 0
+    sum_all_useful = 0
+    print(f'{'label':>14s} |  {'train':^20s}  :  {'validation':^20s}  :  {'test':^20s}  |  {'sum':^5s}  :  {'use':^5s}  :  {'all':^5s}')
     for label in labels:
         label_view = oafi.filter_labels('ground_truth', F('label').is_in([label]))
         label_dict = dict()
         line = []
         sum_anno = 0
+        sum_useful = 0
         sum_all = 0
         for split in ['train', 'validation', 'test']:
             ls_tags = label_view.match_tags(split).count_sample_tags()
@@ -466,11 +512,15 @@ def print_matrix():
             no_face = ls_tags.get('no_face', 0)
             s_count = ls_tags.get(split, 0)
             label_dict[split] = (anno_needed, annotated, no_face, s_count)
-            sum_anno += anno_needed+annotated-no_face
+            sum_anno += anno_needed+annotated
+            sum_useful += anno_needed+annotated-no_face
             sum_all += s_count
             line.append(f'{anno_needed:4d} {annotated:4d} {no_face:4d} {s_count:5d}')
-        print(f'{label:>14s} |  {line[0]}  :  {line[1]}  :  {line[2]}  |  {sum_anno:5d}  :  {sum_all:5d}')
+        print(f'{label:>14s} |  {line[0]}  :  {line[1]}  :  {line[2]}  |  {sum_anno:5d}  :  {sum_useful:5d}  :  {sum_all:5d}')
         counts[label] = label_dict
+        sum_all_anno += sum_anno
+        sum_all_useful += sum_useful
+    print(f'{' ':^93s}{sum_all_anno:5d}  :  {sum_all_useful:5d}')
 
     i = input('fix matrix?')
     if not i == 'yes':
