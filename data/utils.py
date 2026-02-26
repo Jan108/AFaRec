@@ -6,9 +6,17 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 
 
-def test_mongo_connection():
+def setup(mongo_uri: str = 'mongodb://localhost:27017/',):
+    # Setup FiftyOne
+    test_mongo_connection(mongo_uri)
+    fo.config.dataset_zoo_dir = Path('/mnt/data/afarec/data')
+    fo.config.database_uri = mongo_uri
+    fo.config.database_validation = False
+
+
+def test_mongo_connection(mongo_uri: str):
     try:
-        client = MongoClient(fo.config.database_uri, serverSelectionTimeoutMS=5000)
+        client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
         # Force a connection to check if the server is available
         client.admin.command('ping')
         return

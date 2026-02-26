@@ -29,7 +29,7 @@ Dogs, Cats, Fish, Birds (Parrots, ...), Small animal (Hamsters, Rabbits, Guinea 
 6. Run ```pip install Cython==0.29.33```
 7. Run ```pip install mmpycocotools```
 8. Run ```pip install yapf==0.30.0```
-9. Run ```pip install -r requirements.txt ```
+9. Run ```pip install -r requirements.txt```
 10. Alter ```libfacedetection.train/mmdet/datasets/pipelines/transforms.py:1082``` ```np.int``` -> ```np.int64```
 11. Prepare data: Follow https://github.com/ShiqiYu/libfacedetection.train Readme.md
 12. Train: ```CUDA_VISIBLE_DEVICES=0 bash tools/dist_train.sh ./configs/yunet_n.py 1 12345```
@@ -38,6 +38,17 @@ Dogs, Cats, Fish, Birds (Parrots, ...), Small animal (Hamsters, Rabbits, Guinea 
 if cfg.load_from:
     from mmcv.runner import load_checkpoint
     checkpoint = load_checkpoint(model, cfg.load_from, map_location='cuda')
+```
+
+# Reproduce RetinaFace
+Use Python 3.11.x
+```shell
+cd face_detection/retinaface/retinaface-pytorch
+git clone https://github.com/yakhyo/retinaface-pytorch.git
+cd retinaface-pytorch
+pip install -r requirements.txt
+# Alter files: train.py, evaluate_widerface.py, utils/dataset.py
+bash train_predict_retinaface.sh
 ```
 
 # ToDo
@@ -91,21 +102,24 @@ Done:
         - try on my data -> wait for training done
         - fine tune on pre weight? -> not possible currently
             - maybe use torch2onnx.py there model is loaded, adapt for train.py, could work \-_-/
+    - write eval yunet
+        - train all classes; train one per class
+        - predict into fiftyone?
+    - do I need landmarks? -> CenterFace and retinaFace use them, but I'm not sure if they NEED them
+        - find out -> I guess it works with out them, yunet should, but better with maybe?
+        - alter label process?
+        - animalWeb
+        -> No dont need them!
+    - Find out which face detectors I wanna use:
+        - List Sota approaches -> good framing why i use those models 3 is good 
     
 
 Heute:
     - train rfdetr on mlserv2
 
-Morgen:
+Morgen: 
+    - FaceDetection: eval all classes/per class
     - Tobis anmerkungen einarbeiten
-    - write eval yunet
-        - train all classes; train one per class
-        - predict into fiftyone?
-        - eval all classes/per class; eval all
-    - do I need landmarks? -> CenterFace and retinaFace use them, but I'm not sure if they NEED them
-        - find out -> I guess it works with out them, yunet should, but better with maybe?
-        - alter label process?
-        - animalWeb
 
 Plan Fragen:
     - Frist Studienbüro Abgabe Mail / Briefkasten
@@ -113,10 +127,7 @@ Plan Fragen:
     - bis ~10.03. Klärung wann Vortrag, damit ich weiß Teilzeitstudium und mit LSW reden
 
 Next Tasks:
-    - Find out which face detectors I wanna use:
-        - List Sota approaches -> good framing why i use those models 3 is good 
-        - try some with a lower confidence
-        - write 4.2.2 OpenAnimalFaceImages
+    - write 4.2.2 OpenAnimalFaceImages
     - add example data (image with annotation) to 4.2.1
     - write eval animal detection
         - with confusion matrix like yolo train

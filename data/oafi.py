@@ -6,8 +6,10 @@ from PIL import Image
 from fiftyone import ViewField as F
 from tqdm import tqdm
 
-from . import oai
-from . import utils
+try:
+    from . import oai, utils
+except ImportError:
+    import utils, oai
 
 
 def create_open_animal_face_images_dataset(oai_dir: Path, export_dir: Path, max_samples: int = None,
@@ -124,8 +126,14 @@ def import_prediction_from_yunet(dataset: fo.Dataset, import_dir: Path, field_na
     """
     dataset.compute_metadata()
     pred_dir = Path(import_dir)
+    if not pred_dir.exists():
+        raise FileNotFoundError(f'The directory {import_dir} does not exist.')
+    if not pred_dir.is_dir():
+        raise NotADirectoryError(f'The directory {import_dir} is not a directory.')
+    if not any(pred_dir.iterdir()):
+        raise FileNotFoundError(f'The directory {import_dir} is empty.')
 
-    for sample in dataset:
+    for sample in tqdm(dataset, desc=f'Import {import_dir.parent.name} into {field_name} in {dataset.name}'):
         img_name = Path(sample.filepath).stem
         txt_path = pred_dir / f"{img_name}.txt"
         if not txt_path.exists():
@@ -139,18 +147,14 @@ def import_prediction_from_yunet(dataset: fo.Dataset, import_dir: Path, field_na
                     continue
 
                 x, y, w, h, conf = map(float, parts)
-
-                w_img, h_img = sample.metadata.width, sample.metadata.height
-                nx = x / w_img
-                ny = y / h_img
-                nw = w / w_img
-                nh = h / h_img
-                bbox = [nx, ny, nw, nh]
-
+                nx = x / sample.metadata.width
+                ny = y / sample.metadata.height
+                nw = w / sample.metadata.width
+                nh = h / sample.metadata.height
                 detections.append(
                     fo.Detection(
                         label='face',
-                        bounding_box=bbox,
+                        bounding_box=[nx, ny, nw, nh],
                         confidence=conf,
                     )
                 )
