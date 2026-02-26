@@ -7,7 +7,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import fiftyone as fo
 from fiftyone import ViewField as F
 
-from creation import load_yolo_dataset_from_disk
+try:
+    from utils import load_yolo_dataset_from_disk
+except ModuleNotFoundError:
+    from data.utils import load_yolo_dataset_from_disk
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()

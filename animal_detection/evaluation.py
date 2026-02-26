@@ -6,7 +6,7 @@ from rfdetr import RFDETRSmall
 from supervision.metrics.mean_average_precision import MeanAveragePrecision, MeanAveragePrecisionResult
 import numpy as np
 
-from data.creation import load_yolo_dataset_from_disk
+from data import utils
 import yolo as yolo_stuff
 import rf_detr as rfdetr_stuff
 
@@ -98,7 +98,7 @@ def run_eval_rfdetr(oai_Dataset: fo.Dataset):
 
 
 if __name__ == "__main__":
-    dataset = load_yolo_dataset_from_disk(Path('/mnt/data/afarec/data/OpenAnimalImages/')).match_tags('test')
+    dataset = utils.load_yolo_dataset_from_disk(Path('/mnt/data/afarec/data/OpenAnimalImages/')).match_tags('test')
 
     run_eval_yolo(dataset)
     run_eval_rfdetr(dataset)
