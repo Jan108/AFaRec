@@ -41,6 +41,17 @@ def yunet_stuff():
     #     )
 
 
+def retinaface_import():
+    data_oafi = fo.load_dataset('OAFI_full')
+    work_dir = Path('/mnt/data/afarec/code/face_detection/retinaface/work_dir/')
+    for cls_name in ['all', 'bird', 'cat', 'cat_like', 'dog', 'dog_like', 'horse_like', 'small_animals', 'pretrained']:
+        oafi.import_prediction_from_yunet(
+            data_oafi,
+            work_dir / f'retinaface_{cls_name}/results',
+            f'retinaface_{cls_name}_v1'
+        )
+
+
 def create_all_datasets(export_dir: Path) -> None:
     fo.delete_non_persistent_datasets()
     export_dir = Path(export_dir)
@@ -52,7 +63,8 @@ def create_all_datasets(export_dir: Path) -> None:
 
 if __name__ == '__main__':
     # create_all_datasets(Path('/mnt/data/afarec/data'))
-    yunet_stuff()
+    # yunet_stuff()
+    retinaface_import()
 
     session = fo.launch_app(address='0.0.0.0')
     session.wait(-1)

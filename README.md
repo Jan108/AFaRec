@@ -111,15 +111,25 @@ Done:
         - animalWeb
         -> No dont need them!
     - Find out which face detectors I wanna use:
-        - List Sota approaches -> good framing why i use those models 3 is good 
+        - List Sota approaches -> good framing why i use those models 3 is good
+    - train rfdetr on mlserv2
+    - Tobis anmerkungen einarbeiten
+    - write 2.2 Face detection
+    - write 2.2.1 RetinaFace
+    - write 2.2.3 Yunet
+    - write 2.2.2 CenterFace
+    - write 2.2.4 SCRFD
     
 
 Heute:
-    - train rfdetr on mlserv2
+    - write 4.2.2 OpenAnimalFaceImages
+    - write 4.4 Animal Face Detection
 
-Morgen: 
-    - FaceDetection: eval all classes/per class
-    - Tobis anmerkungen einarbeiten
+Morgen:
+    - Train/Predict CenterFace, SCRFD?
+    - #Params Centerface via sum(p.numel() for p in model.parameters())
+    - RetinaFace with different Backbone MobinetV2, Resnet18
+    - Yunet-s
 
 Plan Fragen:
     - Frist Studienbüro Abgabe Mail / Briefkasten
@@ -127,13 +137,16 @@ Plan Fragen:
     - bis ~10.03. Klärung wann Vortrag, damit ich weiß Teilzeitstudium und mit LSW reden
 
 Next Tasks:
-    - write 4.2.2 OpenAnimalFaceImages
     - add example data (image with annotation) to 4.2.1
-    - write eval animal detection
-        - with confusion matrix like yolo train
-        - It needs sepparation of different classes
-    - eval yolo26 s/m finetuned
-    - eval yolo26 s/m standard
+    - write 4.4.1 Generalisation vs specification
+    - write 3 Related Work
+    - Eval:
+        - eval yolo26 s/m finetuned
+        - eval yolo26 s/m standard
+        - write eval animal detection
+        - mAP: eval all classes/per class (cur only area size)
+        - Confusion matrix plot for bbox
+    - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
 
 Talk with Tobi:
     - How do I do baseline with YOLO26 because of missing classes in pretrained model?
@@ -147,6 +160,7 @@ Paused:
 | Name               | Link                                                                                                                                                                                                                                                      | F1                                              | Training Prozess                                                                                                             | Order | Why use it?                 |
 |--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|-------|-----------------------------|
 | RetinaFace         | [official repo not meant for training](https://github.com/serengil/retinaface/blob/master/retinaface/model/retinaface_model.py#L46)                                                                                                                       |                                                 | Repo doesnt give training stuff, but tfmodel, can be called with fit, but needs: loss, metrics and dataset                   | 2     | highest acc / gold standard |
-| MTCNN / fast mtcnn | [implementation from someone](https://github.com/etosworld/etos-mtcnn) / [pip packet](https://mtcnn.readthedocs.io/en/latest/training/) / [better tutorial with code](https://deepwiki.com/xuexingyu24/MobileFaceNet_Tutorial_Pytorch/6.4-mtcnn-training) | Outperformed SOTA at the time with large margin | 3 Networks, but maybe only need 2, wants landmark data, documented, found other repo https://github.com/etosworld/etos-mtcnn | 4?    | uses 3 networks             |
+| MTCNN / fast mtcnn | [implementation from someone](https://github.com/etosworld/etos-mtcnn) / [pip packet](https://mtcnn.readthedocs.io/en/latest/training/) / [better tutorial with code](https://deepwiki.com/xuexingyu24/MobileFaceNet_Tutorial_Pytorch/6.4-mtcnn-training) | Outperformed SOTA at the time with large margin | 3 Networks, but maybe only need 2, wants landmark data, documented, found other repo https://github.com/etosworld/etos-mtcnn | -     | uses 3 networks             |
 | Yunet              | [Official Train Repo](https://github.com/ShiqiYu/libfacedetection.train) / [OpenCV Readme](https://github.com/opencv/opencv_zoo/blob/main/models/face_detection_yunet/README.md)                                                                          | 0.8656 on medium AP                             | Dateset structure, one Network, has a train method                                                                           | 1     | Really small: 75k parm      |
-| CenterFace         | [Unoffical repo](https://github.com/chenjun2hao/CenterFace.pytorch) / [Training Guide](https://deepwiki.com/chenjun2hao/CenterFace.pytorch/5.1-training-guide)                                                                                            | 0.9089 medium AP                                | DAtaset structure, one Network, guide with code implementation                                                               | 3     |                             |
+| CenterFace         | [Unoffical repo](https://github.com/chenjun2hao/CenterFace.pytorch) / [Training Guide](https://deepwiki.com/chenjun2hao/CenterFace.pytorch/5.1-training-guide)                                                                                            | 0.9089 medium AP                                | DAtaset structure, one Network, guide with code implementation                                                               | 3     | anchorless                  |
+| SCRFD              | [Offical Repo Train](https://github.com/deepinsight/insightface/tree/master/detection/scrfd)                                                                                                                                                              | 94.92 AP Medium                                 | WiderFace with MMDet like Yunet                                                                                              | 4     | training optimization       |

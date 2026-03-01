@@ -267,3 +267,9 @@ def print_matrix(dataset: fo.Dataset, fix_matrix: bool = False) -> None:
                 removed_samples.untag_samples('anno_needed')
             else:
                 label_view.match_tags(split).take(missing, seed=42).tag_samples('anno_needed')
+
+
+def mean_anno_time(dataset: fo.Dataset, cut_off:  int = 20):
+    anno_time = [i for i in dataset.values('annotation_time') if i is not None]
+    anno_time.sort()
+    return sum(anno_time[cut_off:-cut_off])/len(anno_time[cut_off:-cut_off])

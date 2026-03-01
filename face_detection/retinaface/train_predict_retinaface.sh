@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-
 for cls in "all" "bird" "cat" "cat_like" "dog" "dog_like" "horse_like" "small_animals"; do
   PYTHONPATH='/mnt/data/afarec/code/face_detection/retinaface/retinaface-pytorch/':$PYTHONPATH \
   python /mnt/data/afarec/code/face_detection/retinaface/retinaface-pytorch/train.py \
@@ -17,9 +16,9 @@ for cls in "all" "bird" "cat" "cat_like" "dog" "dog_like" "horse_like" "small_an
   python /mnt/data/afarec/code/face_detection/retinaface/retinaface-pytorch/evaluate_widerface.py \
   -w "$(dirname "$0")/work_dir/retinaface_${cls}/resnet34_final.pth" \
   --network "resnet34" \
-  --origin_size \
+  --origin-size \
   --save-folder "$(dirname "$0")/work_dir/retinaface_${cls}/results/" \
-  --dataset-folder "/mnt/data/afarec/data/OAFI_full/images/test" \
+  --dataset-folder "/mnt/data/afarec/data/OAFI_full/images/test/" \
   --dataset-labels "/mnt/data/afarec/data/OAFI_full/labels_yunet/labels_${cls}_test.txt"
 done
 
@@ -28,7 +27,8 @@ PYTHONPATH='/mnt/data/afarec/code/face_detection/retinaface/retinaface-pytorch/'
 python /mnt/data/afarec/code/face_detection/retinaface/retinaface-pytorch/evaluate_widerface.py \
   -w "$(dirname "$0")/work_dir/retinaface_pretrained/retinaface_r34.pth" \
   --network "resnet34" \
-  --origin_size \
+  --origin-size \
   --save-folder "$(dirname "$0")/work_dir/retinaface_pretrained/results/" \
-  --dataset-folder "/mnt/data/afarec/data/OAFI_full/images/test" \
+  --dataset-folder "/mnt/data/afarec/data/OAFI_full/images/test/" \
   --dataset-labels "/mnt/data/afarec/data/OAFI_full/labels_yunet/labels_all_test.txt"
+
