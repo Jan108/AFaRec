@@ -64,7 +64,7 @@ def create_all_datasets(export_dir: Path) -> None:
 if __name__ == '__main__':
     # create_all_datasets(Path('/mnt/data/afarec/data'))
     # yunet_stuff()
-    retinaface_import()
+    # retinaface_import()
 
     session = fo.launch_app(address='0.0.0.0')
     session.wait(-1)

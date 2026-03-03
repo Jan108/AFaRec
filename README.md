@@ -119,11 +119,22 @@ Done:
     - write 2.2.3 Yunet
     - write 2.2.2 CenterFace
     - write 2.2.4 SCRFD
+    - write 4.2.2 OpenAnimalFaceImages
+    - Mail Prof Vortrag?
+    - add example data (image with annotation) to 4.2.1
+        - dog: /mnt/data/afarec/data/OAFI_full/images/test/000f24d363c4b66c_0.jpg
+        - bird: /mnt/data/afarec/data/OAFI_full/images/test/139a32269caab028_0.jpg
+        - small animals: /mnt/data/afarec/data/OAFI_full/images/test/1c30a83373b711ce_0.jpg / /mnt/data/afarec/data/OAFI_full/images/test/1c30a83373b711ce_1.jpg
+        - horse_like: /mnt/data/afarec/data/OAFI_full/images/test/1e69455253b84280_3.jpg
+        - cat_like: /mnt/data/afarec/data/OAFI_full/images/test/115e3db0d6aa77e7_3.jpg
+        - cat: /mnt/data/afarec/data/OAFI_full/images/test/6bdfb462395b22b6_0.jpg
+        - dog_like: /mnt/data/afarec/data/OAFI_full/images/train/026748cbec73bd58_0.jpg
+        - Annotator image: 699ca2f849c05958b946aee6
     
 
 Heute:
-    - write 4.2.2 OpenAnimalFaceImages
     - write 4.4 Animal Face Detection
+    - write 4.4.1 Generalisation vs specification
 
 Morgen:
     - Train/Predict CenterFace, SCRFD?
@@ -133,12 +144,9 @@ Morgen:
 
 Plan Fragen:
     - Frist Studienbüro Abgabe Mail / Briefkasten
-    - Mail Prof Vortrag?
     - bis ~10.03. Klärung wann Vortrag, damit ich weiß Teilzeitstudium und mit LSW reden
 
 Next Tasks:
-    - add example data (image with annotation) to 4.2.1
-    - write 4.4.1 Generalisation vs specification
     - write 3 Related Work
     - Eval:
         - eval yolo26 s/m finetuned
@@ -153,9 +161,6 @@ Talk with Tobi:
     - Eval depth?
     - Opinion on current text? Detailed enough?
 
-
-Paused:
-    - write 2.1.3 RT-DETR
 
 | Name               | Link                                                                                                                                                                                                                                                      | F1                                              | Training Prozess                                                                                                             | Order | Why use it?                 |
 |--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|-------|-----------------------------|
