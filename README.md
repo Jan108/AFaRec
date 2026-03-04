@@ -19,26 +19,9 @@ Most Popular pets:
 https://americanpetproducts.org/industry-trends-and-stats
 Dogs, Cats, Fish, Birds (Parrots, ...), Small animal (Hamsters, Rabbits, Guinea Pig, ...), Reptiles (Snake, Lizards, Turtles), Horses
 
-
-# Reproduce Yunet
-1. Run ```pip install torch==1.8.2 torchvision==0.9.2 torchaudio==0.8.2 --extra-index-url https://download.pytorch.org/whl/lts/1.8/cu111```
-2. Run ```pip install mmcv-full==1.3.17 -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.8.0/index.html```
-3. Clone Git Repo
-4. Run ```cd face_detection/yunet/libfacedetection.train/```
-5. Run ```python setup.py develop```
-6. Run ```pip install Cython==0.29.33```
-7. Run ```pip install mmpycocotools```
-8. Run ```pip install yapf==0.30.0```
-9. Run ```pip install -r requirements.txt```
-10. Alter ```libfacedetection.train/mmdet/datasets/pipelines/transforms.py:1082``` ```np.int``` -> ```np.int64```
-11. Prepare data: Follow https://github.com/ShiqiYu/libfacedetection.train Readme.md
-12. Train: ```CUDA_VISIBLE_DEVICES=0 bash tools/dist_train.sh ./configs/yunet_n.py 1 12345```
-13. Alter ```libfacedetection.train/tools/train.py:212``` and add following lines
-```python
-if cfg.load_from:
-    from mmcv.runner import load_checkpoint
-    checkpoint = load_checkpoint(model, cfg.load_from, map_location='cuda')
-```
+# Reproduce FaceDetection
+## YuNet
+Clone [YuNet](https://github.com/Jan108/YuNet) into the [face_detection/YuNet](face_detection/YuNet) directory. And follow the [README.md](face_detection/YuNet/README.md)
 
 # Reproduce RetinaFace
 Use Python 3.11.x
@@ -130,24 +113,25 @@ Done:
         - cat: /mnt/data/afarec/data/OAFI_full/images/test/6bdfb462395b22b6_0.jpg
         - dog_like: /mnt/data/afarec/data/OAFI_full/images/train/026748cbec73bd58_0.jpg
         - Annotator image: 699ca2f849c05958b946aee6
+    - write 4.4 Animal Face Detection
+    - write 4.4.1 Generalisation vs specification
     
 
 Heute:
-    - write 4.4 Animal Face Detection
-    - write 4.4.1 Generalisation vs specification
-
-Morgen:
+    - Early stopping? -> I need to change some of the training params, but I don't know how yet... -> reduce LR, leave rest as is
     - Train/Predict CenterFace, SCRFD?
     - #Params Centerface via sum(p.numel() for p in model.parameters())
+
+Morgen:
     - RetinaFace with different Backbone MobinetV2, Resnet18
     - Yunet-s
+    - write 3 Related Work
 
 Plan Fragen:
     - Frist Studienbüro Abgabe Mail / Briefkasten
     - bis ~10.03. Klärung wann Vortrag, damit ich weiß Teilzeitstudium und mit LSW reden
 
 Next Tasks:
-    - write 3 Related Work
     - Eval:
         - eval yolo26 s/m finetuned
         - eval yolo26 s/m standard
