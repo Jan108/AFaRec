@@ -23,16 +23,11 @@ Dogs, Cats, Fish, Birds (Parrots, ...), Small animal (Hamsters, Rabbits, Guinea 
 ## YuNet
 Clone [YuNet](https://github.com/Jan108/YuNet) into the [face_detection/YuNet](face_detection/YuNet) directory. And follow the [README.md](face_detection/YuNet/README.md)
 
-# Reproduce RetinaFace
-Use Python 3.11.x
-```shell
-cd face_detection/retinaface/retinaface-pytorch
-git clone https://github.com/yakhyo/retinaface-pytorch.git
-cd retinaface-pytorch
-pip install -r requirements.txt
-# Alter files: train.py, evaluate_widerface.py, utils/dataset.py
-bash train_predict_retinaface.sh
-```
+## SCRFD
+Clone [SCRFD](https://github.com/Jan108/SCRFD) into the [face_detection/SCRFD](face_detection/SCRFD) directory. And follow the [README.md](face_detection/SCRFD/README.md)
+
+## RetinaFace
+Clone [RetinaFace](https://github.com/Jan108/RetinaFace) into the [face_detection/RetinaFace](face_detection/RetinaFace) directory. And follow the [README.md](face_detection/RetinaFace/README.md)
 
 # ToDo
 AnimalCLEF 2025
@@ -121,11 +116,14 @@ Heute:
     - Early stopping? -> I need to change some of the training params, but I don't know how yet... -> reduce LR, leave rest as is
     - Train/Predict CenterFace, SCRFD?
     - #Params Centerface via sum(p.numel() for p in model.parameters())
+    - interannotator agreement -> ich schaue nochmal über 100 Bilder von Mama rüber und berechne wie die übereinstimmen
 
 Morgen:
     - RetinaFace with different Backbone MobinetV2, Resnet18
     - Yunet-s
     - write 3 Related Work
+
+added 800 to bird, 750 to horse_like, 30 dog, 30 cat_like, 30 small_animals for annotation
 
 Plan Fragen:
     - Frist Studienbüro Abgabe Mail / Briefkasten
