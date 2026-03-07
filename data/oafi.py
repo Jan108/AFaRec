@@ -91,10 +91,12 @@ def export_labels_to_yunet(dataset: fo.Dataset) -> None:
     if any(export_dir.iterdir()):
         raise FileExistsError(f'The directory {export_dir} already exists and is not empty.')
 
-    for split in ['train', 'validation', 'test']:
+    # Export train and validation split into trainval, because validation is not needed
+    for split in [('train', 'validation'), 'test']:
+        split_name = split if split == 'test' else 'train'
         view = dataset.match_tags(split).match_tags('annotated').match_tags('no_face', bool=False)
         for classes in ['all', 'bird', 'cat', 'cat_like', 'dog', 'dog_like', 'horse_like', 'small_animals']:
-            cur_file = export_dir / f'labels_{classes}_{split}.txt'
+            cur_file = export_dir / f'labels_{classes}_{split_name}.txt'
             if classes == 'all':
                 cls_view = view
             else:

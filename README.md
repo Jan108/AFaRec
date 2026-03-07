@@ -110,20 +110,22 @@ Done:
         - Annotator image: 699ca2f849c05958b946aee6
     - write 4.4 Animal Face Detection
     - write 4.4.1 Generalisation vs specification
+    - RetinaFace with different Backbone MobinetV2, Resnet18
+    - Yunet-s
+    - Early stopping? -> I need to change some of the training params, but I don't know how yet... -> reduce LR, leave rest as is
+    - Train/Predict CenterFace, SCRFD? -> CenterFace does not have available weights for training (Repo is also ass)
+    - #Params Centerface via sum(p.numel() for p in model.parameters())
+    - Clear status for Tobi: Anno done OAFI, fix errors
+    - added images to annotate 1600 to bird, 750 to horse_like, 250 dog, 150 cat_like, 350 small_animals for annotation
     
 
 Heute:
-    - Early stopping? -> I need to change some of the training params, but I don't know how yet... -> reduce LR, leave rest as is
-    - Train/Predict CenterFace, SCRFD?
-    - #Params Centerface via sum(p.numel() for p in model.parameters())
-    - interannotator agreement -> ich schaue nochmal über 100 Bilder von Mama rüber und berechne wie die übereinstimmen
+    - Mail Maletti Termin
+    - Stammdaten LSW
+    - Start with Face Recognition
 
 Morgen:
-    - RetinaFace with different Backbone MobinetV2, Resnet18
-    - Yunet-s
     - write 3 Related Work
-
-added 800 to bird, 750 to horse_like, 30 dog, 30 cat_like, 30 small_animals for annotation
 
 Plan Fragen:
     - Frist Studienbüro Abgabe Mail / Briefkasten
@@ -136,6 +138,7 @@ Next Tasks:
         - write eval animal detection
         - mAP: eval all classes/per class (cur only area size)
         - Confusion matrix plot for bbox
+        - interannotator agreement -> ich schaue nochmal über 250 Bilder von Mama rüber und berechne wie die übereinstimmen
     - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
 
 Talk with Tobi:
@@ -149,5 +152,5 @@ Talk with Tobi:
 | RetinaFace         | [official repo not meant for training](https://github.com/serengil/retinaface/blob/master/retinaface/model/retinaface_model.py#L46)                                                                                                                       |                                                 | Repo doesnt give training stuff, but tfmodel, can be called with fit, but needs: loss, metrics and dataset                   | 2     | highest acc / gold standard |
 | MTCNN / fast mtcnn | [implementation from someone](https://github.com/etosworld/etos-mtcnn) / [pip packet](https://mtcnn.readthedocs.io/en/latest/training/) / [better tutorial with code](https://deepwiki.com/xuexingyu24/MobileFaceNet_Tutorial_Pytorch/6.4-mtcnn-training) | Outperformed SOTA at the time with large margin | 3 Networks, but maybe only need 2, wants landmark data, documented, found other repo https://github.com/etosworld/etos-mtcnn | -     | uses 3 networks             |
 | Yunet              | [Official Train Repo](https://github.com/ShiqiYu/libfacedetection.train) / [OpenCV Readme](https://github.com/opencv/opencv_zoo/blob/main/models/face_detection_yunet/README.md)                                                                          | 0.8656 on medium AP                             | Dateset structure, one Network, has a train method                                                                           | 1     | Really small: 75k parm      |
-| CenterFace         | [Unoffical repo](https://github.com/chenjun2hao/CenterFace.pytorch) / [Training Guide](https://deepwiki.com/chenjun2hao/CenterFace.pytorch/5.1-training-guide)                                                                                            | 0.9089 medium AP                                | DAtaset structure, one Network, guide with code implementation                                                               | 3     | anchorless                  |
+| CenterFace         | [Unoffical repo](https://github.com/chenjun2hao/CenterFace.pytorch) / [Training Guide](https://deepwiki.com/chenjun2hao/CenterFace.pytorch/5.1-training-guide)                                                                                            | 0.9089 medium AP                                | DAtaset structure, one Network, guide with code implementation                                                               | -     | anchorless, no weights :(   |
 | SCRFD              | [Offical Repo Train](https://github.com/deepinsight/insightface/tree/master/detection/scrfd)                                                                                                                                                              | 94.92 AP Medium                                 | WiderFace with MMDet like Yunet                                                                                              | 4     | training optimization       |

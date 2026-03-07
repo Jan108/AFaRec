@@ -65,6 +65,7 @@ if __name__ == '__main__':
     # create_all_datasets(Path('/mnt/data/afarec/data'))
     # yunet_stuff()
     # retinaface_import()
+    oafi.export_labels_to_yunet(fo.load_dataset('OAFI_full'))
 
-    session = fo.launch_app(address='0.0.0.0')
-    session.wait(-1)
+    # session = fo.launch_app(address='0.0.0.0')
+    # session.wait(-1)

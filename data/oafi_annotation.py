@@ -8,15 +8,16 @@ import fiftyone as fo
 from fiftyone import ViewField as F
 
 try:
-    from utils import load_yolo_dataset_from_disk
+    from utils import load_yolo_dataset_from_disk, setup
 except ModuleNotFoundError:
-    from data.utils import load_yolo_dataset_from_disk
+    from data.utils import load_yolo_dataset_from_disk, setup
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 oafi_dataset: fo.Dataset
 timed_out_samples: dict[str, datetime] = {}
 include_skipped = False
+add_new_samples = False
 
 users = {
     "jan": generate_password_hash("jannilslutzthisbirgitthomas"),
@@ -127,7 +128,7 @@ def get_unlabeled_sample(only_skipped: bool = False) -> fo.Sample | None:
         unlabeled_samples = oafi_dataset.match_tags('skipped', bool=True)
     else:
         unlabeled_samples = unlabeled_samples.match_tags('skipped', bool=False)
-    if unlabeled_samples.count() == 0:
+    if add_new_samples and unlabeled_samples.count() == 0:
         # Add new Samples to anno_needed
         labels = list(oafi_dataset.count_values('ground_truth.detections.label').keys())
         missing_samples = oafi_dataset.match_tags('annotated', bool=False)
@@ -235,10 +236,14 @@ def serve_image(img_id):
         return 404
 
 if __name__ == '__main__':
+    setup()
     oafi_dataset = load_yolo_dataset_from_disk(
         Path('/mnt/data/afarec/data/OAFI_full'),
         persistence=True, name='OAFI_full'
     )
     # Use to run skipped samples
     # include_skipped = True
+
+    # Add new samples to anno_needed if all samples are annotated
+    # add_new_samples = True
     app.run(debug=False, host='0.0.0.0')
