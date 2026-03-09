@@ -117,10 +117,15 @@ Done:
     - #Params Centerface via sum(p.numel() for p in model.parameters())
     - Clear status for Tobi: Anno done OAFI, fix errors
     - added images to annotate 1600 to bird, 750 to horse_like, 250 dog, 150 cat_like, 350 small_animals for annotation
+    - 2.2 Datasets brigde to pretraining weights and why its important to me
+    - 2.2 short desc categorys
+    - Bounding box explained?
+    - Label guidelines details
+    - Mail Maletti Termin
+    - define experiments FR
     
 
 Heute:
-    - Mail Maletti Termin
     - Stammdaten LSW
     - Start with Face Recognition
 
@@ -140,6 +145,9 @@ Next Tasks:
         - Confusion matrix plot for bbox
         - interannotator agreement -> ich schaue nochmal über 250 Bilder von Mama rüber und berechne wie die übereinstimmen
     - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
+    - Tobi Points
+        - maybe make names cursive
+
 
 Talk with Tobi:
     - How do I do baseline with YOLO26 because of missing classes in pretrained model?
@@ -147,10 +155,22 @@ Talk with Tobi:
     - Opinion on current text? Detailed enough?
 
 
-| Name               | Link                                                                                                                                                                                                                                                      | F1                                              | Training Prozess                                                                                                             | Order | Why use it?                 |
-|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|-------|-----------------------------|
-| RetinaFace         | [official repo not meant for training](https://github.com/serengil/retinaface/blob/master/retinaface/model/retinaface_model.py#L46)                                                                                                                       |                                                 | Repo doesnt give training stuff, but tfmodel, can be called with fit, but needs: loss, metrics and dataset                   | 2     | highest acc / gold standard |
-| MTCNN / fast mtcnn | [implementation from someone](https://github.com/etosworld/etos-mtcnn) / [pip packet](https://mtcnn.readthedocs.io/en/latest/training/) / [better tutorial with code](https://deepwiki.com/xuexingyu24/MobileFaceNet_Tutorial_Pytorch/6.4-mtcnn-training) | Outperformed SOTA at the time with large margin | 3 Networks, but maybe only need 2, wants landmark data, documented, found other repo https://github.com/etosworld/etos-mtcnn | -     | uses 3 networks             |
-| Yunet              | [Official Train Repo](https://github.com/ShiqiYu/libfacedetection.train) / [OpenCV Readme](https://github.com/opencv/opencv_zoo/blob/main/models/face_detection_yunet/README.md)                                                                          | 0.8656 on medium AP                             | Dateset structure, one Network, has a train method                                                                           | 1     | Really small: 75k parm      |
-| CenterFace         | [Unoffical repo](https://github.com/chenjun2hao/CenterFace.pytorch) / [Training Guide](https://deepwiki.com/chenjun2hao/CenterFace.pytorch/5.1-training-guide)                                                                                            | 0.9089 medium AP                                | DAtaset structure, one Network, guide with code implementation                                                               | -     | anchorless, no weights :(   |
-| SCRFD              | [Offical Repo Train](https://github.com/deepinsight/insightface/tree/master/detection/scrfd)                                                                                                                                                              | 94.92 AP Medium                                 | WiderFace with MMDet like Yunet                                                                                              | 4     | training optimization       |
+Backbones: Ghostfacenet, ResNet50, ResNet100, VGG-Face?, FaceNet
+Loss: ArcFace, CentreLoss, CosFace, Softmax, A-Softmax (SphereFace), TripletLoss
+
+Data: Open-set vs closed-set -> learn classification; learn embeddings -> good fig wang.2021_Deep Fig. 20
+
+Amount Times 5
+
+ResNet 34/50 X ArcFace/CosFace https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch 4Modelle
+SphereFaceNet 20 X SphereFace/SphereFace+/SphereFace-R/SphereFace2 https://github.com/ydwen/opensphere/tree/OpenSphere_v0 4Models beschänken auf 2
+GhostFaceNetV1-1.3-2 X ArcFace/CosFace https://github.com/HamadYA/GhostFaceNets 2 Models
+
+| Name         | Order | Why use it? | Training Prozess         | Links                                                                                                   |
+|--------------|-------|-------------|--------------------------|---------------------------------------------------------------------------------------------------------|
+| Facenet      |       |             |                          |                                                                                                         |
+| VGG-Face     |       |             |                          | [Training Repo](https://github.com/rcmalli/keras-vggface)                                                                                       |
+| dlib         |       |             |                          |                                                                                                         |
+| Ghostfacenet |       |             |                          |                                                                                                         |
+| ArcFace      |       |             | train.py with all i need | [Offical Training](https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch)    |
+| SphereFace   |       |             | has train function       | [ReImplementation?](https://github.com/yakhyo/face-recognition) / [Original](https://opensphere.world/) |
