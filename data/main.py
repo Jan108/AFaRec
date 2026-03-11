@@ -27,28 +27,28 @@ def load_coco() -> None:
 def yunet_stuff():
     data_oafi = fo.load_dataset('OAFI_full')
 
-    work_dir = Path('/mnt/data/afarec/code/face_detection/yunet/work_dir/')
-    oafi.import_prediction_from_yunet(
-        data_oafi,
-        work_dir / f'yunet_pretrained/results',
-        f'yunet_pretrained_v1'
-    )
-    # for cls_name in ['all', 'bird', 'cat', 'cat_like', 'dog', 'dog_like', 'horse_like', 'small_animals', 'pretrained']:
-    #     oafi.import_prediction_from_yunet(
-    #         data_oafi,
-    #         work_dir / f'yunet_{cls_name}/results',
-    #         f'yunet_{cls_name}_v1'
-    #     )
+    work_dir = Path('/mnt/data/afarec/code/face_detection/YuNet/work_dir/')
+    # oafi.import_prediction_from_yunet(
+    #     data_oafi,
+    #     work_dir / f'yunet_pretrained/results',
+    #     f'yunet_pretrained_v1'
+    # )
+    for cls_name in ['all', 'bird', 'cat', 'cat_like', 'dog', 'dog_like', 'horse_like', 'small_animals', 'pretrained']:
+        oafi.import_prediction_from_yunet(
+            data_oafi,
+            work_dir / f'yunet_{cls_name}/results',
+            f'yunet_{cls_name}_v2'
+        )
 
 
 def retinaface_import():
     data_oafi = fo.load_dataset('OAFI_full')
-    work_dir = Path('/mnt/data/afarec/code/face_detection/retinaface/work_dir/')
+    work_dir = Path('/mnt/data/afarec/code/face_detection/RetinaFace/work_dir/')
     for cls_name in ['all', 'bird', 'cat', 'cat_like', 'dog', 'dog_like', 'horse_like', 'small_animals', 'pretrained']:
         oafi.import_prediction_from_yunet(
             data_oafi,
             work_dir / f'retinaface_{cls_name}/results',
-            f'retinaface_{cls_name}_v1'
+            f'retinaface_{cls_name}_v2'
         )
 
 
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     # create_all_datasets(Path('/mnt/data/afarec/data'))
     # yunet_stuff()
     # retinaface_import()
-    oafi.export_labels_to_yunet(fo.load_dataset('OAFI_full'))
+    # oafi.export_labels_to_yunet(fo.load_dataset('OAFI_full'))
 
-    # session = fo.launch_app(address='0.0.0.0')
-    # session.wait(-1)
+    session = fo.launch_app(address='0.0.0.0')
+    session.wait(-1)

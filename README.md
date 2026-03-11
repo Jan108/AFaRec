@@ -39,6 +39,43 @@ https://ceur-ws.org/Vol-4038/paper_251.pdf
 https://ceur-ws.org/Vol-4038/paper_253.pdf
 https://ceur-ws.org/Vol-4038/paper_258.pdf
 
+Talk Maletti:
+    - Themen:
+        - Mein Ziel Abgabe 31.03., und Arbeitsbeginn 01.04.
+        - aktueller Stand
+            - Animal Detection: Implementiert und berechnet, eval fehlt
+            - Face Detection: Implementiert und 2/3 berechnet, eval fehlt
+            - Face Recognition: 1/3 Implementiert und 1/3 rechnet, eval fehlt
+            - Annotation: Fertig 15,000 Bilder
+        - Was kommt noch?
+            - Animal Detection: Evaluation, compare with baseline; compare with each other; show problems
+            - Face Detection: Evaluation, compare with baseline; compare speciliced with each other; show problems
+            - Annotation: Interannotator agreement, highlight Problems with dataset, show difficulties
+            - Face Recognition: implement rest and calculate; Evaluation: Verification Task: gg 2 Faces selbe Identität, inter-cls vs intra-cls
+            - Nice to have: Cross age analysis on some dogs/cats (2cats, 4-5dogs)
+        - Feedback
+            - Meinung zu aktuellem Ansatz:
+                - Baseline kurz fine tunen auf den oafi, ohne meine schritte, also ohne spezies 
+                - Beiden schmeckt die Baseline nicht, da ich einen Vergleich mache, ohne das beide Ansätze die selben Daten gesehen haben
+            - Allgemein:
+                - sieht aus wie Master Level
+        - Vortrag
+            - Vorgaben?: Länge, Uni-Vorlage, Wo, Wann, vor wem?, Sprache
+            - 27.03.: 60min
+            - Falls Sie Bilder von ihren Tieren sehen wollen, können Sie mir die gerne schicken -> Bodgan hat Bock
+        - Fragen allgemein:
+            - Was ist ihnen bei der Arbeit/Code wichtig?
+                - Bogdan, Bilder beschriftet, lesbar, Kurven erkennbar und identifizierbar
+                - tausender trennung tabellen
+            - Was passiert, wenn sie sagen durchgefallen? / Was muss gegeben sein damit das nicht passiert?
+                - nur wenn ich schummel, sonst bei aktueller Leistung kein Problem
+            - Teilzeitstudium anmelden ja/nein?
+                - nein, lohnt nicht
+            - Haben Sie noch Ideen/Wünsche/Vorgaben?
+                - Persönlich abgeben am Di und sicher stellen, dass Stempel gesetzt als abgegeben
+                - USB-Stick mit Code
+
+
 Done:
     - Motivation schreiben
     - RQ schreiben
@@ -123,14 +160,18 @@ Done:
     - Label guidelines details
     - Mail Maletti Termin
     - define experiments FR
+    - Start with Face Recognition
+    - implement ArcFace and train it
     
 
 Heute:
-    - Stammdaten LSW
-    - Start with Face Recognition
+    + implement GhostFaceNet
+    - SCRFD on my PC
+    - GhostFaceNet on mlserv2
 
 Morgen:
     - write 3 Related Work
+    - implement SphereFace
 
 Plan Fragen:
     - Frist Studienbüro Abgabe Mail / Briefkasten
@@ -164,13 +205,4 @@ Amount Times 5
 
 ResNet 34/50 X ArcFace/CosFace https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch 4Modelle
 SphereFaceNet 20 X SphereFace/SphereFace+/SphereFace-R/SphereFace2 https://github.com/ydwen/opensphere/tree/OpenSphere_v0 4Models beschänken auf 2
-GhostFaceNetV1-1.3-2 X ArcFace/CosFace https://github.com/HamadYA/GhostFaceNets 2 Models
-
-| Name         | Order | Why use it? | Training Prozess         | Links                                                                                                   |
-|--------------|-------|-------------|--------------------------|---------------------------------------------------------------------------------------------------------|
-| Facenet      |       |             |                          |                                                                                                         |
-| VGG-Face     |       |             |                          | [Training Repo](https://github.com/rcmalli/keras-vggface)                                                                                       |
-| dlib         |       |             |                          |                                                                                                         |
-| Ghostfacenet |       |             |                          |                                                                                                         |
-| ArcFace      |       |             | train.py with all i need | [Offical Training](https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch)    |
-| SphereFace   |       |             | has train function       | [ReImplementation?](https://github.com/yakhyo/face-recognition) / [Original](https://opensphere.world/) |
+GhostFaceNetV1-1.3-1 X ArcFace/CosFace https://github.com/HamadYA/GhostFaceNets 2 Models

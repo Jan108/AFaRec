@@ -15,7 +15,7 @@ def afarec_splits(data_root: Path) -> None:
     mapping = {
         'all': ['cat', 'chinchilla', 'degus', 'dog', 'ferret', 'guineapig', 'hamster',
                 'hedgehog', 'javasparrow', 'parakeet', 'rabbit'],
-        'birds': ['javasparrow', 'parakeet'],
+        'bird': ['javasparrow', 'parakeet'],
         'small_animals': ['chinchilla', 'degus', 'ferret', 'guineapig', 'hamster', 'hedgehog', 'rabbit'],
     }
     for cls, species in mapping.items():
