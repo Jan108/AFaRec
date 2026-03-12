@@ -162,22 +162,26 @@ Done:
     - define experiments FR
     - Start with Face Recognition
     - implement ArcFace and train it
+    + implement GhostFaceNet
+    - Frist Studienbüro Abgabe Mail / Briefkasten -> Abgabe am 31.03. persönlich im Büro, mit USB für Daten
+    - bis ~10.03. Klärung wann Vortrag, damit ich weiß Teilzeitstudium und mit LSW reden
     
 
 Heute:
-    + implement GhostFaceNet
-    - SCRFD on my PC
-    - GhostFaceNet on mlserv2
+    + SCRFD on mlserv2
+    + GhostFaceNet on mlserv2
+    - write 2.3 Face Recognition
 
 Morgen:
-    - write 3 Related Work
+    - write 2.3.1 SphereFace
+    - write 2.3.2 ArcFace
+    - write 2.3.3 GhostFaceNet
     - implement SphereFace
 
-Plan Fragen:
-    - Frist Studienbüro Abgabe Mail / Briefkasten
-    - bis ~10.03. Klärung wann Vortrag, damit ich weiß Teilzeitstudium und mit LSW reden
-
 Next Tasks:
+    - write 4.2.3 PetFace
+    - write 4.5 Face Recognition
+    - write 3 Related Work
     - Eval:
         - eval yolo26 s/m finetuned
         - eval yolo26 s/m standard
@@ -188,6 +192,8 @@ Next Tasks:
     - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
     - Tobi Points
         - maybe make names cursive
+        - maybe add small headlines in long texts like 2.2/2.3
+    (- broken train-val-test split deterministic for OAFI)
 
 
 Talk with Tobi:
@@ -195,6 +201,7 @@ Talk with Tobi:
     - Eval depth?
     - Opinion on current text? Detailed enough?
 
+Plan Fragen:
 
 Backbones: Ghostfacenet, ResNet50, ResNet100, VGG-Face?, FaceNet
 Loss: ArcFace, CentreLoss, CosFace, Softmax, A-Softmax (SphereFace), TripletLoss
