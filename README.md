@@ -165,17 +165,17 @@ Done:
     + implement GhostFaceNet
     - Frist Studienbüro Abgabe Mail / Briefkasten -> Abgabe am 31.03. persönlich im Büro, mit USB für Daten
     - bis ~10.03. Klärung wann Vortrag, damit ich weiß Teilzeitstudium und mit LSW reden
+    - write 2.3 Face Recognition
+    - write 2.3.1 SphereFace
+    - write 2.3.2 ArcFace
+    - write 2.3.3 GhostFaceNet
     
 
 Heute:
     + SCRFD on mlserv2
     + GhostFaceNet on mlserv2
-    - write 2.3 Face Recognition
 
 Morgen:
-    - write 2.3.1 SphereFace
-    - write 2.3.2 ArcFace
-    - write 2.3.3 GhostFaceNet
     - implement SphereFace
 
 Next Tasks:
@@ -211,5 +211,5 @@ Data: Open-set vs closed-set -> learn classification; learn embeddings -> good f
 Amount Times 5
 
 ResNet 34/50 X ArcFace/CosFace https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch 4Modelle
-SphereFaceNet 20 X SphereFace/SphereFace+/SphereFace-R/SphereFace2 https://github.com/ydwen/opensphere/tree/OpenSphere_v0 4Models beschänken auf 2
+SphereFaceNet 20/64 X SphereFace https://github.com/ydwen/opensphere/tree/OpenSphere_v0 2Models
 GhostFaceNetV1-1.3-1 X ArcFace/CosFace https://github.com/HamadYA/GhostFaceNets 2 Models
