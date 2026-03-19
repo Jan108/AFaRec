@@ -57,7 +57,7 @@ def create_open_animal_face_images_dataset(oai_dir: Path, export_dir: Path, max_
                 new_img_path = tmp_dir / f'{img_path.stem}_{i}{img_path.suffix}'
                 img = Image.open(img_path)
 
-                bbox = utils.convert_xyhwn_to_xyxy(det.bounding_box, img.height, img.width)
+                bbox = utils.convert_xywhn_to_xyxy(det.bounding_box, img.height, img.width)
                 img.crop(bbox).save(new_img_path)
 
                 new_sample = fo.Sample(filepath=new_img_path)
@@ -110,7 +110,7 @@ def export_labels_to_yunet(dataset: fo.Dataset) -> None:
                     lines = [f'# {sample.filename} {img_width} {img_height}\n']
 
                     for det in sample.ground_truth.detections:
-                        bbox = utils.convert_xyhwn_to_xyxy(det.bounding_box, img_height, img_width)
+                        bbox = utils.convert_xywhn_to_xyxy(det.bounding_box, img_height, img_width)
                         lines.append(
                             f'{bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]} -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1\n')
 

@@ -26,7 +26,9 @@ def test_mongo_connection(mongo_uri: str):
         raise ConnectionError(msg)
 
 
-def convert_xyhwn_to_xyxy(bbox: tuple[int, int, int, int], img_height: int, img_width: int) -> tuple[
+
+
+def convert_xywhn_to_xyxy(bbox: tuple[int, int, int, int], img_height: int, img_width: int) -> tuple[
     int, int, int, int]:
     """
     Converts BBOX from FiftyOne format to xmin, ymin, xmax, ymax with absolut values based on image height and width
@@ -48,8 +50,8 @@ def convert_xyhwn_to_xyxy(bbox: tuple[int, int, int, int], img_height: int, img_
     return xmin, ymin, xmax, ymax
 
 
-def convert_xyxy_to_xyhwn(xyxy: tuple[int, int, int, int], img_height: int,
-                          img_width: int) -> tuple[float, float, float, float]:
+def convert_xyxy_to_xywhn(xyxy: tuple[int, int, int, int], img_width: int,
+                          img_height: int) -> tuple[float, float, float, float]:
     """
     Convert bounding box from xyxy format to xywhn format
     :param xyxy: BBox in xyxy format xmin, ymin, xmax, ymax

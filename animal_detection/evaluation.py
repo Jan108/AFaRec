@@ -2,14 +2,15 @@ from pathlib import Path
 
 import fiftyone as fo
 import supervision as sv
-from rfdetr import RFDETRSmall
+from rfdetr import RFDETRSmall, RFDETRMedium
 from supervision.metrics.mean_average_precision import MeanAveragePrecision, MeanAveragePrecisionResult
+from fiftyone import ViewField as F
 import numpy as np
+from tqdm import tqdm
 
 from data import utils
 import yolo as yolo_stuff
 import rf_detr as rfdetr_stuff
-
 
 class_mapping = {
     'bird': 0,
@@ -38,7 +39,7 @@ def convert_fiftyone_to_supervision(detection: fo.Detections) -> sv.Detections:
 
 def calc_mAP(dataset: fo.Dataset, prediction_field: str, ground_truth_field: str = 'ground_truth') -> MeanAveragePrecisionResult:
     map_metric = MeanAveragePrecision()
-    for sample in dataset:
+    for sample in tqdm(dataset, desc=f'{prediction_field} mAP'):
         prediction = sample[prediction_field]
         ground_truth = sample[ground_truth_field]
         map_metric.update(
@@ -48,57 +49,144 @@ def calc_mAP(dataset: fo.Dataset, prediction_field: str, ground_truth_field: str
     return map_metric.compute()
 
 
-def run_eval_yolo(oai_Dataset: fo.Dataset):
+def calc_mAP_per_cls(dataset: fo.Dataset, prediction_field: str,
+                     ground_truth_field: str = 'ground_truth', cls_list: list[str] = None
+                     ) -> dict[str, MeanAveragePrecisionResult]:
+    res = {}
+    if cls_list is None:
+        cls_list = ['bird', 'cat', 'cat_like', 'dog', 'dog_like', 'horse_like', 'small_animals']
+    for cls in cls_list:
+        res[cls] = calc_mAP(dataset.filter_labels(ground_truth_field, F('label').is_in([cls])).filter_labels(prediction_field, F('label').is_in([cls])),
+                            prediction_field, ground_truth_field)
+    return res
+
+def create_table_map():
+    oai = utils.load_yolo_dataset_from_disk(Path('/mnt/data/afarec/data/OpenAnimalImages/')).match_tags('test')
+    # oai = oai.take(250)
+
+    add_yolo_to_dataset(oai)
+    add_rfdetr_to_dataset(oai)
+
+    pred_fields = [
+        'Yolo26S_02_13_best', 'Yolo26M_02_13_best', 'Yolo26S_baseline', 'Yolo26M_baseline',
+        'RFDetrS_02_22_best', 'RFDetrM_02_22_best', 'RFDetrS_baseline', 'RFDetrM_baseline'
+    ]
+
+    results = {}
+    cls_names = ['bird', 'cat', 'cat_like', 'dog', 'dog_like', 'horse_like', 'small_animals']
+    coco_cls = ['bird', 'cat', 'dog', 'horse_like']
+    s50 = []
+    s95 = []
+    for pred in pred_fields:
+        if pred.endswith('baseline'):
+            r = calc_mAP_per_cls(oai, pred, cls_list=coco_cls)
+            r['all'] = calc_mAP(oai.filter_labels('ground_truth', F('label').is_in(coco_cls)), pred)
+        else:
+            r = calc_mAP_per_cls(oai, pred)
+            r['all'] = calc_mAP(oai, pred)
+        results[pred] = r
+
+        cls_info_50 = ' & '.join([f'{r[l].map50*100:.2f}' if l in r else '--' for l in cls_names+['all']])
+        cls_info_95 = ' & '.join([f'{r[l].map50_95*100:.2f}' if l in r else '--' for l in cls_names+['all']])
+        s50.append(f'{pred[0:7]} & \\{'x' if pred.endswith('baseline') else 'c'}mark & {cls_info_50} & time \\\\ \\tabrowspace')
+        s95.append(f'{pred[0:7]} & \\{'x' if pred.endswith('baseline') else 'c'}mark & {cls_info_95} & time \\\\ \\tabrowspace')
+
+    for s in s50:
+        print(s)
+    print('\\midrule')
+    print('\\multicolumn{11}{c}{mAP50:95 (\\%)} \\\\')
+    print('\\midrule')
+    for s in s95:
+        print(s)
+
+    print(results)
+
+
+def add_yolo_to_dataset(dataset: fo.Dataset):
     print('Eval of Yolo26s 2026-02-13 best weights')
-    yolo_stuff.add_prediction_to_dataset(
+    y26s_delta = yolo_stuff.add_prediction_to_dataset(
         model_path='/mnt/data/afarec/code/runs/mlserv2/runs/detect/yolo-s_oai_2026-02-13_v3/weights/best.pt',
-        dataset=oai_Dataset,
+        dataset=dataset,
         prediction_field="Yolo26S_02_13_best",
+        confidence=0.05
     )
-    print(calc_mAP(oai_Dataset, prediction_field='Yolo26S_02_13_best'))
-    print(f'{'=' * 150}')
+    print(f'Took {y26s_delta} for prediction per image')
 
     print('Eval of Yolo26m 2026-02-13 best weights')
-    yolo_stuff.add_prediction_to_dataset(
+    y26m_delta = yolo_stuff.add_prediction_to_dataset(
         model_path='/mnt/data/afarec/code/runs/mlserv2/runs/detect/yolo-m_oai_2026-02-13_v4/weights/best.pt',
-        dataset=oai_Dataset,
+        dataset=dataset,
         prediction_field="Yolo26M_02_13_best",
+        confidence=0.05
     )
-    print(calc_mAP(oai_Dataset, prediction_field='Yolo26M_02_13_best'))
-    print(f'{'=' * 150}')
+    print(f'Took {y26m_delta} for prediction per image')
 
-    # print('Eval of Yolo26s')
-    # yolo_stuff.add_prediction_to_dataset(
-    #     model_path='yolo26s.pt',
-    #     dataset=oai_Dataset,
-    #     prediction_field="Yolo26S_baseline",
-    # )
-    # print(calc_mAP(oai_Dataset, prediction_field='Yolo26S_baseline'))
-    # print(f'{'='*150}')
-    #
-    # print('Eval of Yolo26m')
-    # yolo_stuff.add_prediction_to_dataset(
-    #     model_path='yolo26m.pt',
-    #     dataset=oai_Dataset,
-    #     prediction_field="Yolo26M_baseline",
-    # )
-    # print(calc_mAP(oai_Dataset, prediction_field='Yolo26M_baseline'))
-    # print(f'{'='*150}')
-
-
-def run_eval_rfdetr(oai_Dataset: fo.Dataset):
-    print('Eval of RF-Detr 2026-02-04 epoch 27')
-    rfdetr_stuff.add_prediction_to_dataset(
-        model=RFDETRSmall(pretrain_weights='/mnt/data/afarec/code/runs/rfdetr/2026-02-04/checkpoint0027.pth'),
-        dataset=oai_Dataset,
-        prediction_field="RFDetrS_02_04_e27",
+    print('Eval of Yolo26s')
+    y26s_pre_delta = yolo_stuff.add_prediction_to_dataset(
+        model_path='yolo26s.pt',
+        dataset=dataset,
+        prediction_field="Yolo26S_baseline",
+        confidence=0.05,
+        coco_classes=True,
     )
-    print(calc_mAP(oai_Dataset, prediction_field='RFDetrS_02_04_e27'))
-    print(f'{'=' * 150}')
+    print(f'Took {y26s_pre_delta} for prediction per image')
+
+    print('Eval of Yolo26m')
+    y26m_pre_delta = yolo_stuff.add_prediction_to_dataset(
+        model_path='yolo26m.pt',
+        dataset=dataset,
+        prediction_field="Yolo26M_baseline",
+        confidence=0.05,
+        coco_classes=True,
+    )
+    print(f'Took {y26m_pre_delta} for prediction per image')
+
+    print(f'All times: {y26s_delta}, {y26m_delta}, {y26s_pre_delta}, {y26m_pre_delta}')
+    # All times: 0:00:00.014727, 0:00:00.017649, 0:00:00.014386, 0:00:00.017635
+
+
+def add_rfdetr_to_dataset(dataset: fo.Dataset):
+    print('Eval of RF-Detr small 2026-02-22 best')
+    s_delta = rfdetr_stuff.add_prediction_to_dataset(
+        model=RFDETRSmall(pretrain_weights='/mnt/data/afarec/code/runs/mlserv2/runs/rfdetr/small-2026-02-22-2/checkpoint_best_total.pth'),
+        dataset=dataset,
+        prediction_field="RFDetrS_02_22_best",
+        confidence=0.05
+    )
+    print(f'Took {s_delta} for prediction per image')
+
+    print('Eval of RF-Detr medium 2026-02-22 best')
+    m_delta = rfdetr_stuff.add_prediction_to_dataset(
+        model=RFDETRMedium(pretrain_weights='/mnt/data/afarec/code/runs/mlserv2/runs/rfdetr/medium-2026-02-22-2/checkpoint_best_total.pth'),
+        dataset=dataset,
+        prediction_field="RFDetrM_02_22_best",
+        confidence=0.05
+    )
+    print(f'Took {m_delta} for prediction per image')
+
+    print('Eval of RF-Detr small baseline')
+    s_pre_delta = rfdetr_stuff.add_prediction_to_dataset(
+        model=RFDETRSmall(),
+        dataset=dataset,
+        prediction_field="RFDetrS_baseline",
+        confidence=0.05,
+        coco_classes=True,
+    )
+    print(f'Took {s_pre_delta} for prediction per image')
+
+    print('Eval of RF-Detr medium baseline')
+    m_pre_delta = rfdetr_stuff.add_prediction_to_dataset(
+        model=RFDETRMedium(),
+        dataset=dataset,
+        prediction_field="RFDetrM_baseline",
+        confidence=0.05,
+        coco_classes=True,
+    )
+    print(f'Took {m_pre_delta} for prediction per image')
+
+    print(f'All times: {s_delta}, {m_delta}, {s_pre_delta}, {m_pre_delta}')
+    # All times: 0:00:00.028628, 0:00:00.033064, 0:00:00.028328, 0:00:00.031997
 
 
 if __name__ == "__main__":
-    dataset = utils.load_yolo_dataset_from_disk(Path('/mnt/data/afarec/data/OpenAnimalImages/')).match_tags('test')
-
-    run_eval_yolo(dataset)
-    run_eval_rfdetr(dataset)
+    create_table_map()

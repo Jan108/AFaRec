@@ -1,3 +1,4 @@
+import datetime
 import json
 from pathlib import Path
 from typing import Any
@@ -11,7 +12,7 @@ import supervision as sv
 import fiftyone as fo
 from tqdm import tqdm
 
-from data.utils import convert_xyxy_to_xyhwn
+from data.utils import convert_xyxy_to_xywhn
 
 
 class_mapping = {
@@ -22,6 +23,15 @@ class_mapping = {
     4: 'dog_like',
     5: 'horse_like',
     6: 'small_animals'
+}
+
+coco_class_mapping = {
+    16: 'bird',
+    17: 'cat',
+    18: 'dog',
+    19: 'horse_like', #horse
+    20: 'horse_like', #sheep
+    21: 'horse_like', #cow
 }
 
 
@@ -43,7 +53,7 @@ def resume_rfdetr_s(dataset_dir: str = '/mnt/data/afarec/data/') -> None:
 
 
 def add_prediction_to_dataset(model: RFDETRSmall | RFDETRMedium, dataset: fo.Dataset, prediction_field: str,
-                              coco_classes: bool = False, confidence: float = 0.5) -> None:
+                              coco_classes: bool = False, confidence: float = 0.5) -> datetime.timedelta:
     """
     Predict the detections using the given model for each sample in the dataset and save it under the prediction_field.
     :param model: RFDETR model for prediction
@@ -51,24 +61,33 @@ def add_prediction_to_dataset(model: RFDETRSmall | RFDETRMedium, dataset: fo.Dat
     :param prediction_field: key where to store the predictions
     :param coco_classes: whether to use coco classes
     :param confidence: confidence threshold
-    :return: None
+    :return: average timedelta for one prediction
     """
+    times: list[datetime.timedelta] = []
+    model.optimize_for_inference()
+    mapping = coco_class_mapping if coco_classes else class_mapping
     for sample in tqdm(dataset, desc=f'Inference for {prediction_field}:'):
+        start_time = datetime.datetime.now()
         img = Image.open(sample.filepath).convert('RGB')
         results: sv.Detections = model.predict(img, threshold=confidence)
+        end_time = datetime.datetime.now()
+        times.append(end_time - start_time)
 
         detections = []
         for xyxy, _, conf, class_id, _, _ in results:
-            detections.append(
-                fo.Detection(
-                    label=class_mapping[class_id],
-                    bounding_box=convert_xyxy_to_xyhwn(xyxy, img.width, img.height),
-                    confidence=conf,
+            label = mapping.get(class_id, None)
+            if label is not None:
+                detections.append(
+                    fo.Detection(
+                        label=label,
+                        bounding_box=convert_xyxy_to_xywhn(xyxy, img.width, img.height),
+                        confidence=conf,
+                    )
                 )
-            )
 
         sample[prediction_field] = fo.Detections(detections=detections)
         sample.save()
+    return sum(times, datetime.timedelta()) / len(times)
 
 
 def eval_model(model: RFDETRSmall | RFDETRMedium, dataset_path: str = '/mnt/data/afarec/data/OpenAnimalImages_RF-DETR/') -> None:

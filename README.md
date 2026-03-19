@@ -169,24 +169,28 @@ Done:
     - write 2.3.1 SphereFace
     - write 2.3.2 ArcFace
     - write 2.3.3 GhostFaceNet
+    - implement SphereFace
+    - write 4.2.3 PetFace -> correct Tabel
+    - write 4.5 Face Recognition -> 4.5.3 left
+    + SCRFD on mlserv2 eta Mo 9Uhr
+    - write 3 Related Work
+    + GhostFaceNet on mlserv2
+    - eval yolo26 s/m finetuned
+    - eval yolo26 s/m standard
+    - mAP: eval all classes/per class (cur only area size)
     
 
 Heute:
-    + SCRFD on mlserv2
-    + GhostFaceNet on mlserv2
+    + SphereFace on mlserv2
+    - write 5.1 eval animal detection
+    - conf matrix for 5.1
 
 Morgen:
-    - implement SphereFace
+    - eval face det
+    - write 5.2 face det
 
 Next Tasks:
-    - write 4.2.3 PetFace
-    - write 4.5 Face Recognition
-    - write 3 Related Work
     - Eval:
-        - eval yolo26 s/m finetuned
-        - eval yolo26 s/m standard
-        - write eval animal detection
-        - mAP: eval all classes/per class (cur only area size)
         - Confusion matrix plot for bbox
         - interannotator agreement -> ich schaue nochmal über 250 Bilder von Mama rüber und berechne wie die übereinstimmen
     - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
