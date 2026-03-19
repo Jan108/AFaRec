@@ -178,20 +178,20 @@ Done:
     - eval yolo26 s/m finetuned
     - eval yolo26 s/m standard
     - mAP: eval all classes/per class (cur only area size)
+    - write 5.1 eval animal detection
+    - conf matrix for 5.1
+    - Confusion matrix plot for bbox
     
 
 Heute:
     + SphereFace on mlserv2
-    - write 5.1 eval animal detection
-    - conf matrix for 5.1
-
-Morgen:
     - eval face det
     - write 5.2 face det
 
+Morgen:
+
 Next Tasks:
     - Eval:
-        - Confusion matrix plot for bbox
         - interannotator agreement -> ich schaue nochmal über 250 Bilder von Mama rüber und berechne wie die übereinstimmen
     - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
     - Tobi Points

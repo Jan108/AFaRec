@@ -1,16 +1,19 @@
 from pathlib import Path
 
 import fiftyone as fo
-import supervision as sv
-from rfdetr import RFDETRSmall, RFDETRMedium
-from supervision.metrics.mean_average_precision import MeanAveragePrecision, MeanAveragePrecisionResult
-from fiftyone import ViewField as F
+import matplotlib.pyplot as plt
 import numpy as np
+import supervision as sv
+from fiftyone import ViewField as F
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from rfdetr import RFDETRSmall, RFDETRMedium
+from sklearn.metrics import ConfusionMatrixDisplay
+from supervision.metrics.mean_average_precision import MeanAveragePrecision, MeanAveragePrecisionResult
 from tqdm import tqdm
 
-from data import utils
-import yolo as yolo_stuff
 import rf_detr as rfdetr_stuff
+import yolo as yolo_stuff
+from data import utils
 
 class_mapping = {
     'bird': 0,
@@ -102,6 +105,54 @@ def create_table_map():
     print(results)
 
 
+def create_conf_plot():
+    oai = utils.load_yolo_dataset_from_disk(Path('/mnt/data/afarec/data/OpenAnimalImages/')).match_tags('test')
+    # oai = oai.take(250)
+
+    pred_fields = [
+        'Yolo26S_02_13_best', 'Yolo26M_02_13_best', # 'Yolo26S_baseline', 'Yolo26M_baseline',
+        'RFDetrS_02_22_best', 'RFDetrM_02_22_best', # 'RFDetrS_baseline', 'RFDetrM_baseline'
+    ]
+
+    fig, axes = plt.subplots(2, 2, figsize=(10.5, 10))
+    axes = axes.flatten()
+
+    display_labels = ['Background', 'Bird', 'Cat', 'Cat-like', 'Dog', 'Dog-like', 'Horse-like', 'Small Animal']
+    display_labels = ['BG', 'Bird', 'Cat', 'CatL', 'Dog', 'DogL', 'Horse', 'SmAn']
+    titles = ['Yolo26-S', 'Yolo26-M', 'RFDetr-S', 'RFDetr-M']
+    for i, (pred, ax) in enumerate(zip(pred_fields, axes)):
+        results = oai.evaluate_detections(pred, gt_field="ground_truth")
+
+        disp = ConfusionMatrixDisplay.from_predictions(
+            results.ytrue,
+            results.ypred,
+            # normalize='true',
+            cmap='Blues',
+            xticks_rotation=45,
+            display_labels=display_labels,
+            # values_format='.2f',
+            ax=ax,
+            colorbar=False,
+        )
+
+        ax.tick_params(axis='both', which='major', labelsize=16)
+        ax.set_xlabel('Predicted', fontsize=16)
+        ax.set_ylabel('True', fontsize=16)
+
+        ax.set_title(titles[i], fontsize=20)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.1)
+        cbar = plt.colorbar(disp.im_, cax=cax)
+        cbar.ax.tick_params(labelsize=16)
+
+    plt.subplots_adjust(left=0.02, right=0.98, top=0.98, bottom=0.02, wspace=0.4, hspace=0.3)
+    plt.tight_layout(pad=0.6)
+    save_path = Path('/mnt/data/afarec/code/docs/figures/obj_det_conf_unorm.pdf')
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(save_path, format='pdf', bbox_inches='tight')
+    plt.show()
+
+
 def add_yolo_to_dataset(dataset: fo.Dataset):
     print('Eval of Yolo26s 2026-02-13 best weights')
     y26s_delta = yolo_stuff.add_prediction_to_dataset(
@@ -189,4 +240,5 @@ def add_rfdetr_to_dataset(dataset: fo.Dataset):
 
 
 if __name__ == "__main__":
-    create_table_map()
+    # create_table_map()
+    create_conf_plot()
