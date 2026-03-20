@@ -118,7 +118,8 @@ def export_labels_to_yunet(dataset: fo.Dataset) -> None:
                 f.flush()
 
 
-def import_prediction_from_yunet(dataset: fo.Dataset, import_dir: Path, field_name: str, speedup: bool = False) -> None:
+def import_prediction_from_yunet(dataset: fo.Dataset, import_dir: Path, field_name: str,
+                                 speedup: bool = False) -> None:
     """
     Import the predictions from yunet into the oafi dataset.
     :param dataset: the oafi dataset
@@ -136,7 +137,10 @@ def import_prediction_from_yunet(dataset: fo.Dataset, import_dir: Path, field_na
     if not any(pred_dir.iterdir()):
         raise FileNotFoundError(f'The directory {import_dir} is empty.')
 
-    view = dataset.match_tags('test').match_tags('annotated').match_tags('no_face', bool=False)
+    if speedup:
+        view = dataset.match_tags('test').match_tags('annotated').match_tags('no_face', bool=False)
+    else:
+        view = dataset
 
     for sample in tqdm(view.iter_samples(autosave=True, progress=False), desc=f'Import {import_dir.parent.name} into {field_name} in {dataset.name}'):
         img_name = Path(sample.filepath).stem
