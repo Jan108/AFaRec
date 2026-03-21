@@ -281,3 +281,17 @@ def mean_anno_time(dataset: fo.Dataset, cut_off:  int = 20):
     anno_time = [i for i in dataset.values('annotation_time') if i is not None]
     anno_time.sort()
     return sum(anno_time[cut_off:-cut_off])/len(anno_time[cut_off:-cut_off])
+
+
+def add_iaa_samples(amount: int = 40, base_user: str = 'this'):
+    oafi = fo.load_dataset('OAFI_full')
+    for label in ['bird', 'cat', 'cat_like', 'dog', 'dog_like', 'horse_like', 'small_animals']:
+        label_view = oafi.match_tags(base_user).filter_labels("ground_truth", F("label").is_in([label]))
+        label_view.take(amount, seed=42).tag_samples('iaa')
+
+    for sample in oafi.match_tags('iaa').iter_samples(autosave=True, progress=False):
+        if 'no_face' in sample.tags:
+            det = []
+        else:
+            det = sample['ground_truth.detections'][0]
+        sample[f"IAA-{base_user}"] = fo.Detections(detections=det)

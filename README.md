@@ -181,18 +181,20 @@ Done:
     - write 5.1 eval animal detection
     - conf matrix for 5.1
     - Confusion matrix plot for bbox
+    - Presicion-Recall curve for three best models
+    + SphereFace on mlserv2
+    - How do I do baseline with YOLO26 because of missing classes in pretrained model? leave out
+    - oafi? interannotator agreement -> mama labelt 250 von mir und This
     
 
 Heute:
-    + SphereFace on mlserv2
     - eval face det
+        - latency for all
     - write 5.2 face det
 
 Morgen:
 
 Next Tasks:
-    - Eval:
-        - interannotator agreement -> ich schaue nochmal über 250 Bilder von Mama rüber und berechne wie die übereinstimmen
     - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
     - Tobi Points
         - maybe make names cursive
@@ -201,19 +203,5 @@ Next Tasks:
 
 
 Talk with Tobi:
-    - How do I do baseline with YOLO26 because of missing classes in pretrained model?
     - Eval depth?
     - Opinion on current text? Detailed enough?
-
-Plan Fragen:
-
-Backbones: Ghostfacenet, ResNet50, ResNet100, VGG-Face?, FaceNet
-Loss: ArcFace, CentreLoss, CosFace, Softmax, A-Softmax (SphereFace), TripletLoss
-
-Data: Open-set vs closed-set -> learn classification; learn embeddings -> good fig wang.2021_Deep Fig. 20
-
-Amount Times 5
-
-ResNet 34/50 X ArcFace/CosFace https://github.com/deepinsight/insightface/tree/master/recognition/arcface_torch 4Modelle
-SphereFaceNet 20/64 X SphereFace https://github.com/ydwen/opensphere/tree/OpenSphere_v0 2Models
-GhostFaceNetV1-1.3-1 X ArcFace/CosFace https://github.com/HamadYA/GhostFaceNets 2 Models

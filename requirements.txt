@@ -15,3 +15,4 @@ rfdetr
 flask
 Flask-HTTPAuth
 supervision==0.27.0
+statsmodels

@@ -117,6 +117,35 @@ def update_annotation(img_id: str, no_face: bool, bbox: list[float],
     sample.save()
 
 
+def save_iaa_anno(img_id: str, no_face: bool, bbox: list[float],
+                      img_class: str, skip_img: bool, anno_name: str, time_dur: timedelta):
+    sample = oafi_dataset[img_id]
+    sample.tags.append(anno_name)
+
+    if no_face:
+        print(f"Updating IAA for {img_id} by {anno_name}  ({time_dur.total_seconds()} s): No face present")
+        det=[]
+    else:
+        print(f"Updating IAA for {img_id} by {anno_name}  ({time_dur.total_seconds()} s): New bbox {bbox}")
+        det = [fo.Detection(label=img_class, bounding_box=list(bbox))]
+    sample[f"IAA-{anno_name}"] = fo.Detections(detections=det)
+    sample.save()
+
+
+def get_sample_iaa(user: str) -> fo.Sample | None:
+    """
+    Returns a sample not annotated by the user for the interannotator agreement.
+    :param user:
+    :return:
+    """
+    iaa_samples = oafi_dataset.match_tags('iaa', bool=True)
+    left_user = iaa_samples.match_tags(user, bool=False)
+    if left_user.count() == 0:
+        return None
+    else:
+        return left_user.first()
+
+
 def get_unlabeled_sample(only_skipped: bool = False) -> fo.Sample | None:
     """
     Get an unlabeled sample from the dataset. Each sample has a timeout of 2min before its returned again.
@@ -187,12 +216,14 @@ def index():
         img_no_face = request.form['img_no_face'] == 'checked'
         anno_name = auth.current_user()
 
+        # save_iaa_anno(img_id, bool(img_no_face), annotated_bbox, img_class, img_skip, anno_name, time_dur)
         update_annotation(img_id, bool(img_no_face), annotated_bbox, img_class, img_skip, anno_name, time_dur)
 
         return redirect(url_for('index'))
 
     # Get unlabeled Sample and render annotation page
     unlabeled_sample = get_unlabeled_sample(only_skipped=include_skipped)
+    # unlabeled_sample = get_sample_iaa(user=auth.current_user())
     if unlabeled_sample is None:
         if include_skipped and oafi_dataset.match_tags('skipped', bool=True).count() == 0:
             return 'Done! Some images where skipped.'
@@ -204,7 +235,9 @@ def index():
     if include_skipped:
         filter_tags = 'annotated'
     count_labeled = oafi_dataset.match_tags(filter_tags, bool=True).count()
+    # count_labeled = oafi_dataset.match_tags('iaa', bool=True).match_tags(auth.current_user(), bool=True).count()
     count_unlabeled = oafi_dataset.match_tags(filter_tags_needed, bool=True).count()
+    # count_unlabeled = oafi_dataset.match_tags('iaa', bool=True).match_tags(auth.current_user(), bool=False).count()
     count_skipped = oafi_dataset.match_tags('skipped', bool=True).count()
     pct_labeled = round((count_labeled / (count_labeled+count_unlabeled+count_skipped)) * 100, 2)
     img_id = unlabeled_sample.id
@@ -215,6 +248,7 @@ def index():
     possible_classes = ['cat', 'dog', 'cat_like', 'dog_like', 'bird', 'horse_like', 'small_animals']
     detections = unlabeled_sample.ground_truth.detections
     if len(detections) > 0:
+        # commend out for iaa
         img_bbox = detections[0].bounding_box
         img_class = detections[0].label
         print(img_class)
