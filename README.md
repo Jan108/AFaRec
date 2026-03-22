@@ -136,6 +136,7 @@ Done:
     - write 2.2.4 SCRFD
     - write 4.2.2 OpenAnimalFaceImages
     - Mail Prof Vortrag?
+    - Opinion on current text? Detailed enough? -> solid
     - add example data (image with annotation) to 4.2.1
         - dog: /mnt/data/afarec/data/OAFI_full/images/test/000f24d363c4b66c_0.jpg
         - bird: /mnt/data/afarec/data/OAFI_full/images/test/139a32269caab028_0.jpg
@@ -185,23 +186,24 @@ Done:
     + SphereFace on mlserv2
     - How do I do baseline with YOLO26 because of missing classes in pretrained model? leave out
     - oafi? interannotator agreement -> mama labelt 250 von mir und This
-    
+    - write 5.2 face det
+    - Mail Studienbüro, Anzahl gedruckter Examplare und Vorgaben Druck, oder doch schon online?
+
 
 Heute:
-    - eval face det
-        - latency for all
-    - write 5.2 face det
+    - predict face recognition
+    - write 5.3 eval face recognition
 
 Morgen:
+    
 
 Next Tasks:
+    - latency for face detection models
     - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
     - Tobi Points
         - maybe make names cursive
-        - maybe add small headlines in long texts like 2.2/2.3
+    - Mit Druck Shop klären wie wo was drucken -> warten auf Studienbüro
     (- broken train-val-test split deterministic for OAFI)
 
 
 Talk with Tobi:
-    - Eval depth?
-    - Opinion on current text? Detailed enough?
