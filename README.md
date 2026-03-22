@@ -191,11 +191,13 @@ Done:
 
 
 Heute:
-    - predict face recognition
+    - predict face recognition for ghostface
+    - build graphs for face rec
     - write 5.3 eval face recognition
 
 Morgen:
-    
+    - check ghostface on mlserv2
+    - run ghostface on vast.ai?
 
 Next Tasks:
     - latency for face detection models
