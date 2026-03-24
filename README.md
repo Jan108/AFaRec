@@ -188,23 +188,41 @@ Done:
     - oafi? interannotator agreement -> mama labelt 250 von mir und This
     - write 5.2 face det
     - Mail Studienbüro, Anzahl gedruckter Examplare und Vorgaben Druck, oder doch schon online?
+    - SphereFace on vastai2 check -> changed config need rerun of all -> new maschine setup -> wait for run
+    - run ghostface on vast.ai -> maybe later, but sphereface first -> waiting on vastai1
+    - sim distribution for 3 generalized models: Ghost-Arc?, ArcR50, SphereFace20
+    - Anz Individum begrenzen, orientieren an kleinster Klasse
+    - Inferenz mit Top5
+    - Identifizierung:
+        - Acc:
+            - true_label in TopK if in pool
+            - simK < threshold if not in pool
+        - Tabelle mit allen Werten für cls Acc@1 und all Acc@[1,2,3]
+        - Radar plot for three models (same as dist plot?) with TopK Acc and all classes
+        - acc-threshold curve
+    - VastAi: Server 2x 3090 24GB mit SphereFace64
 
 
 Heute:
-    - predict face recognition for ghostface
-    - build graphs for face rec
-    - write 5.3 eval face recognition
+    - Präsentation bis eval fertig
+    - adjust section 4.5.3 with correct measurement
+
+Current Training:
+    - SphereFace20 on vastai2, running 1/5 done, eta Di 20:30
+        - tested all: 80.07 auc@30k and 67.30 auc@15k
+    - GhostFaceNet on vastai1, running eta Mi 3Uhr -> smaller batch size shows weaker model
+    - SphereFace64 on mlserv2, running eta ?, need to check for meeting in the middle with vastai3
+    - SphereFace64 on vastai3, running eta Mi 6 Uhr
 
 Morgen:
-    - check ghostface on mlserv2
-    - run ghostface on vast.ai?
+    - write section 5.3
 
 Next Tasks:
     - latency for face detection models
     - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
     - Tobi Points
         - maybe make names cursive
-    - Mit Druck Shop klären wie wo was drucken -> warten auf Studienbüro
+    - Mit Druck Shop klären wie wo was drucken -> warten auf Studienbüro -> brauche 2x gebunden (keine Spiral-/Ringbindung, sondern eine feste Bindung)
     (- broken train-val-test split deterministic for OAFI)
 
 
