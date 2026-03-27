@@ -146,6 +146,32 @@ def get_sample_iaa(user: str) -> fo.Sample | None:
         return left_user.first()
 
 
+demo_ids = [
+    '699ca2f849c05958b946aee6', # Pferd     - kleines Rechteck
+    '699ca2f849c05958b946aed3', # fox       - kein echtes Tier
+    '699ca2f849c05958b946af0e', # cat       - mehrere Gesichter
+    '699ca2f849c05958b946af47', # dog       - kein Mund / Auge
+    '699ca2fd49c05958b946d1e7', # fox       - keine Ohren
+    '699ca2f849c05958b946ae07', # Bird      - Stirn nicht mit drin
+    '699ca2f849c05958b946b0c2', # pferd     - nur das Gesicht nicht der Kopf
+]
+demo_iter = enumerate(demo_ids)
+demo_watched = 0
+
+
+def get_sample_demo() -> tuple[int, fo.Sample]:
+    """
+    Returns a sample for live demo of the annotator
+    :return:
+    """
+    global demo_iter
+    pos, next_id = next(demo_iter, (None, None))
+    if pos is None:
+        demo_iter = enumerate(demo_ids)
+        pos, next_id = next(demo_iter, (None, None))
+
+    return pos, oafi_dataset[next_id]
+
 def get_unlabeled_sample(only_skipped: bool = False) -> fo.Sample | None:
     """
     Get an unlabeled sample from the dataset. Each sample has a timeout of 2min before its returned again.
@@ -217,12 +243,13 @@ def index():
         anno_name = auth.current_user()
 
         # save_iaa_anno(img_id, bool(img_no_face), annotated_bbox, img_class, img_skip, anno_name, time_dur)
-        update_annotation(img_id, bool(img_no_face), annotated_bbox, img_class, img_skip, anno_name, time_dur)
+        # update_annotation(img_id, bool(img_no_face), annotated_bbox, img_class, img_skip, anno_name, time_dur)
 
         return redirect(url_for('index'))
 
     # Get unlabeled Sample and render annotation page
-    unlabeled_sample = get_unlabeled_sample(only_skipped=include_skipped)
+    # unlabeled_sample = get_unlabeled_sample(only_skipped=include_skipped)
+    pos, unlabeled_sample = get_sample_demo()
     # unlabeled_sample = get_sample_iaa(user=auth.current_user())
     if unlabeled_sample is None:
         if include_skipped and oafi_dataset.match_tags('skipped', bool=True).count() == 0:
@@ -239,6 +266,13 @@ def index():
     count_unlabeled = oafi_dataset.match_tags(filter_tags_needed, bool=True).count()
     # count_unlabeled = oafi_dataset.match_tags('iaa', bool=True).match_tags(auth.current_user(), bool=False).count()
     count_skipped = oafi_dataset.match_tags('skipped', bool=True).count()
+
+    global demo_watched
+    count_labeled = demo_watched
+    demo_watched += 1
+    count_unlabeled = len(demo_ids) - pos
+    count_skipped = 0
+
     pct_labeled = round((count_labeled / (count_labeled+count_unlabeled+count_skipped)) * 100, 2)
     img_id = unlabeled_sample.id
     img_height = unlabeled_sample.metadata['height']
@@ -249,7 +283,7 @@ def index():
     detections = unlabeled_sample.ground_truth.detections
     if len(detections) > 0:
         # commend out for iaa
-        img_bbox = detections[0].bounding_box
+        # img_bbox = detections[0].bounding_box
         img_class = detections[0].label
         print(img_class)
         possible_classes.remove(img_class)

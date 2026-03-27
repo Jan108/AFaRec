@@ -36,14 +36,14 @@ for key, values in cls_mapping.items():
 
 def auc_table_verfication():
     models = {
-        'GhostV2-Arc': 'GhostFaceNets/work_dir/arcface_',
-        'GhostV2-Cos': 'GhostFaceNets/work_dir/cosface_',
+        'GhostV2-Arc': 'GhostFaceNets/work_dir_b256/arcface_',
+        'GhostV2-Cos': 'GhostFaceNets/work_dir_b256/cosface_',
         'ArcFace-R34': 'ArcFace/work_dir/r34_arcface_',
         'ArcFace-R50': 'ArcFace/work_dir/r50_arcface_',
         'CosFace-R34': 'ArcFace/work_dir/r34_cosface_',
         'CosFace-R50': 'ArcFace/work_dir/r50_cosface_',
-        'SphereFace20': 'SphereFace/work_dir_v2/20_',
-        'SphereFace64': 'SphereFace/work_dir_v2/64_',
+        'SphereFace20': 'SphereFace/work_dir/20_',
+        'SphereFace64': 'SphereFace/work_dir/64_',
     }
 
     cls_names = ['bird', 'cat', 'dog', 'small_animals']
@@ -116,7 +116,7 @@ def auc_table_verfication():
     for s in s_general:
         print(s)
     print('\\midrule')
-    print('\\multicolumn{7}{c}{Specialised Models} \\\\')
+    print('\\multicolumn{7}{c}{Specialized Models} \\\\')
     print('\\midrule')
     for s in s_special:
         print(s)
@@ -125,14 +125,14 @@ def auc_table_verfication():
 def plot_dist():
     work_dir = Path('/mnt/data/afarec/code/face_recognition/')
     models = {
-        '(a) GhostV2-Arc': 'GhostFaceNets/work_dir/arcface_',
-        # 'GhostV2-Cos': 'GhostFaceNets/work_dir/cosface_',
+        '(a) GhostV2-Arc': 'GhostFaceNets/work_dir_b256/arcface_',
+        # 'GhostV2-Cos': 'GhostFaceNets/work_dir_b256/cosface_',
         # 'ArcFace-R34': 'ArcFace/work_dir/r34_arcface_',
         '(b) ArcFace-R50': 'ArcFace/work_dir/r50_arcface_',
         # 'CosFace-R34': 'ArcFace/work_dir/r34_cosface_',
         # 'CosFace-R50': 'ArcFace/work_dir/r50_cosface_',
-        '(c) SphereFace20': 'SphereFace/work_dir_v2/20_',
-        # 'SphereFace64': 'SphereFace/work_dir_v2/64_',
+        '(c) SphereFace20': 'SphereFace/work_dir/20_',
+        # 'SphereFace64': 'SphereFace/work_dir/64_',
     }
 
     sns.set_style(style="whitegrid")
@@ -158,21 +158,23 @@ def plot_dist():
 
     plt.tight_layout()
     save_path = Path('/mnt/data/afarec/code/docs/figures/face_rec_sim_dist.pdf')
+    save_path_png = Path('/mnt/data/afarec/code/docs/figures/face_rec_sim_dist.png')
     save_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(save_path, format='pdf', bbox_inches='tight')
+    fig.savefig(save_path_png, format='png', dpi=600, bbox_inches='tight')
     plt.show()
 
 
 def table_acc_identification():
     models = {
-        'GhostV2-Arc': ('GhostFaceNets/work_dir/arcface_', 0.5510204081632653, 0.1),
-        'GhostV2-Cos': ('GhostFaceNets/work_dir/cosface_', 0.0, 0.1),
-        'ArcFace-R34': ('ArcFace/work_dir/r34_arcface_', 0.3469387755102041, 0.1),
-        'ArcFace-R50': ('ArcFace/work_dir/r50_arcface_', 0.3061224489795918, 0.1),
-        'CosFace-R34': ('ArcFace/work_dir/r34_cosface_', 0.32653061224489793, 0.1),
-        'CosFace-R50': ('ArcFace/work_dir/r50_cosface_', 0.32653061224489793, 0.1),
-        # 'SphereFace20': ('SphereFace/work_dir/20_', 0.1, 0.1),
-        # 'SphereFace64': ('SphereFace/work_dir/64_', 0.1, 0.1),
+        'GhostV2-Arc': ('GhostFaceNets/work_dir_b256/arcface_', 0.45, 0.45),
+        'GhostV2-Cos': ('GhostFaceNets/work_dir_b256/cosface_', 0.45, 0.45),
+        'ArcFace-R34': ('ArcFace/work_dir/r34_arcface_', 0.4, 0.3),
+        'ArcFace-R50': ('ArcFace/work_dir/r50_arcface_', 0.4, 0.3),
+        'CosFace-R34': ('ArcFace/work_dir/r34_cosface_', 0.4, 0.3),
+        'CosFace-R50': ('ArcFace/work_dir/r50_cosface_', 0.4, 0.3),
+        'SphereFace20': ('SphereFace/work_dir/20_', 0.45, 0.3),
+        'SphereFace64': ('SphereFace/work_dir/64_', 0.45, 0.3),
     }
 
     cls_names = ['bird', 'cat', 'dog', 'small_animals']
@@ -335,16 +337,14 @@ def plot_radar_topk():
 
 def plot_acc_threshold(n_threshold: int = 10, generalized: bool = True):
     models = {
-        'GhostV2-Arc': 'GhostFaceNets/work_dir/arcface_',
-        'GhostV2-Cos': 'GhostFaceNets/work_dir/cosface_',
+        'GhostV2-Arc': 'GhostFaceNets/work_dir_b256/arcface_',
+        'GhostV2-Cos': 'GhostFaceNets/work_dir_b256/cosface_',
         'ArcFace-R34': 'ArcFace/work_dir/r34_arcface_',
         'ArcFace-R50': 'ArcFace/work_dir/r50_arcface_',
         'CosFace-R34': 'ArcFace/work_dir/r34_cosface_',
         'CosFace-R50': 'ArcFace/work_dir/r50_cosface_',
-        'CosFace-R51': 'ArcFace/work_dir/r50_cosface_',
-        'CosFace-R52': 'ArcFace/work_dir/r50_cosface_',
-        # 'SphereFace20': 'SphereFace/work_dir/20_',
-        # 'SphereFace64': 'SphereFace/work_dir/64_',
+        'SphereFace20': 'SphereFace/work_dir/20_',
+        'SphereFace64': 'SphereFace/work_dir/64_',
     }
     work_dir = Path('/mnt/data/afarec/code/face_recognition/')
     cls_names = ['bird', 'cat', 'dog', 'small_animals']
@@ -355,7 +355,7 @@ def plot_acc_threshold(n_threshold: int = 10, generalized: bool = True):
     legend_handles_in = [
         ax.plot([0], [0], color='gray', linestyle='--', label='TPIR')[0],
         ax.plot([0], [0], color='gray', linestyle='-', label='FPIR')[0],
-        ax.plot([0], [0], color='gray', linestyle=':', label='Acc.')[0],
+        # ax.plot([0], [0], color='gray', linestyle='-.', label='Acc.')[0],
     ]
     legend_handles = []
 
@@ -386,7 +386,7 @@ def plot_acc_threshold(n_threshold: int = 10, generalized: bool = True):
 
         ax.plot(thresholds, tpirs, label=f'{model_name}-tpir', linestyle='--', color=color)
         ax.plot(thresholds, fpirs, label=f'{model_name}-fpir', linestyle='-', color=color)
-        ax.plot(thresholds, accs, label=f'{model_name}-acc', linestyle=':', color=color)
+        # ax.plot(thresholds, accs, label=f'{model_name}-acc', linestyle='-.', color=color)
         legend_handles.append(
             ax.plot([], [], color=color, marker='o', linestyle='None', markersize=14, label=model_name)[0]
         )
@@ -406,17 +406,28 @@ def plot_acc_threshold(n_threshold: int = 10, generalized: bool = True):
     plt.tight_layout()
     if generalized:
         save_path = Path('/mnt/data/afarec/code/docs/figures/face_rec_tpir_fpir_gen.pdf')
+        save_path_png = Path('/mnt/data/afarec/code/docs/figures/face_rec_tpir_fpir_gen.png')
     else:
         save_path = Path('/mnt/data/afarec/code/docs/figures/face_rec_tpir_fpir_spe.pdf')
+        save_path_png = Path('/mnt/data/afarec/code/docs/figures/face_rec_tpir_fpir_spe.png')
     save_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(save_path, format='pdf', bbox_inches='tight')
+    fig.savefig(save_path_png, format='png', dpi=600, bbox_inches='tight')
     plt.show()
 
 
 if __name__ == '__main__':
+    # print('Auc Table')
+    # print()
     # auc_table_verfication()
-    # plot_dist()
-    plot_acc_threshold(5, generalized=True)
-    plot_acc_threshold(5, generalized=False)
-    table_acc_identification()
+    # print()
+    # print()
+    # print('Plot Distribution')
+    plot_dist()
+    # print()
+    # print('Plot TPIR/FPIR Gen')
+    # plot_acc_threshold(50, generalized=True)
+    # print('Plot TPIR/FPIR Spe')
+    # plot_acc_threshold(50, generalized=False)
+    # table_acc_identification()
     # plot_radar_topk()

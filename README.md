@@ -201,29 +201,46 @@ Done:
         - Radar plot for three models (same as dist plot?) with TopK Acc and all classes
         - acc-threshold curve
     - VastAi: Server 2x 3090 24GB mit SphereFace64
+    - SphereFace20 on vastai2, running 1/5 done, eta Di 20:30; curr 64_all
+        - tested all: 80.07 auc@30k and 67.30 auc@15k
+    - GhostFaceNet on vastai1, running eta Mi 3Uhr -> smaller batch size shows weaker model -> collapse because small batchsize stopped and destroyed
+    - SphereFace64 on mlserv2, running eta ?, Done 64_smA/dog/cat, curr bird, downloading
+    - SphereFace64 on vastai3, running eta Mi 6 Uhr; Done 64_all/bird, curr 64_cat 50% 
+    - Mit Druck Shop klären wie wo was drucken -> warten auf Studienbüro -> brauche 2x gebunden (keine Spiral-/Ringbindung, sondern eine feste Bindung)
+    - download ghostface from vastai3
+    - run test_ghostface.sh
+    - TPIR / FPIR einführen
+    - Präsentation fertig
+        - Face Verification
+            - Tabelle neu
+            - seminar_fig: hist_plot neu
+            - fig dist_similarity
+        - Face Ident
+            - fig TPIR/FPIR neu -> threshold setzen
+            - Tabelle threshold anpassen -> generieren
+            - seminar_fig_ hist_plot neu
+    - go over all again and check: Result Face Rec left
+    - GhostFaceNet on mlserv2, running arc-all done; cos-cat done;  cos with 256, arc with 256
+    - SphereFace20 on vastai3, running eta ?
 
 
 Heute:
-    - Präsentation bis eval fertig
-    - adjust section 4.5.3 with correct measurement
-
-Current Training:
-    - SphereFace20 on vastai2, running 1/5 done, eta Di 20:30
-        - tested all: 80.07 auc@30k and 67.30 auc@15k
-    - GhostFaceNet on vastai1, running eta Mi 3Uhr -> smaller batch size shows weaker model
-    - SphereFace64 on mlserv2, running eta ?, need to check for meeting in the middle with vastai3
-    - SphereFace64 on vastai3, running eta Mi 6 Uhr
+    - Talk with LeChat to eval 5.3 -> key points
+    - Talk with LeChat for Discussion -> key points
+    - Finish notes
 
 Morgen:
+    - redo GhostFace and SphereFace Eval with 1000 images for latency
     - write section 5.3
+    - adjust section 4.5.3 with correct measurement
 
 Next Tasks:
     - latency for face detection models
     - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
     - Tobi Points
-        - maybe make names cursive
-    - Mit Druck Shop klären wie wo was drucken -> warten auf Studienbüro -> brauche 2x gebunden (keine Spiral-/Ringbindung, sondern eine feste Bindung)
+        - make names cursive
     (- broken train-val-test split deterministic for OAFI)
+    (- find out how to load checkpoint and load epoch 45 for all)
 
-
-Talk with Tobi:
+Fehler in Arbeit:
+    - Tabelle Hyperparameter Animal detectors 
