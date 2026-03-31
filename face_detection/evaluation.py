@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 
 import fiftyone as fo
@@ -14,6 +15,17 @@ from data.oafi import import_prediction_from_yunet
 from data.utils import setup, load_yolo_dataset_from_disk
 
 setup()
+
+def str_to_timedelta(time_str):
+    hours, minutes, seconds = time_str.split(':')
+    seconds, microseconds = seconds.split('.')
+    return timedelta(
+        hours=int(hours),
+        minutes=int(minutes),
+        seconds=int(seconds),
+        microseconds=int(microseconds)
+    )
+
 
 def import_retinaface():
     work_dir = Path('/mnt/data/afarec/code/face_detection/RetinaFace/work_dir')
@@ -99,8 +111,13 @@ def create_table_map(pretrained: bool = True):
             y_score=_ndarray_to_binary(results.ypred)
         )
 
+        latency_path = res_path.parent / 'timing.txt'
+        with latency_path.open('rt') as f:
+            f.readline()
+            time_str = f'{str_to_timedelta(f.readline().strip()).total_seconds() * 1000:.1f}'
+
         cls_info_50 = ' & '.join([f'{r[l]*100:.2f}' for l in cls_names+['all']])
-        s50.append(f'{pred} & {cls_info_50} & time \\\\ \\tabrowspace')
+        s50.append(f'{pred} & {cls_info_50} & {time_str} \\\\ \\tabrowspace')
         print(s50[-1])
 
         oafi_full.delete_sample_field(pred)
@@ -118,6 +135,7 @@ def create_table_map_classwise():
     models = ([f'retinaface_{b}' for b in ['resnet18', 'resnet34', 'mobilenetv2']] +
               [f'scrfd_{t}' for t in ['2.5', '10', '34']] +
               ['yunet', 'yunet_s'])
+    models = ['yunet']
 
     cls_names = ['bird', 'cat', 'cat_like', 'dog', 'dog_like', 'horse_like', 'small_animals']
     s50 = []
@@ -138,6 +156,7 @@ def create_table_map_classwise():
             raise NotImplementedError(f'Unknown model: {pred}')
 
         r = {}
+        timings = []
         for cls in cls_names:
             res_path = work_dir / model / 'work_dir' / (pred_base + cls) / 'results'
             pred = pred.replace('.', '')
@@ -145,21 +164,26 @@ def create_table_map_classwise():
 
             cls_view = oafi.filter_labels('ground_truth', F('label').is_in([cls]))
             cls_view = cls_view.filter_labels(pred, F("confidence") > 0.05, only_matches=False)
-            results = cls_view.evaluate_detections(pred, gt_field="gt_face")
+            results = cls_view.evaluate_detections(pred, gt_field="gt_face", eval_key=f'{model}_{cls}')
             r[cls] = average_precision_score(
                 y_true=_ndarray_to_binary(results.ytrue),
                 y_score=_ndarray_to_binary(results.ypred)
             )
 
+            latency_path = res_path.parent / 'timing.txt'
+            with latency_path.open('rt') as f:
+                timings.append(str_to_timedelta(f.readline().strip()))
+
         view = oafi.filter_labels(pred, F("confidence") > 0.05, only_matches=False)
-        results = view.evaluate_detections(pred, gt_field="gt_face")
+        results = view.evaluate_detections(pred, gt_field="gt_face", eval_key=f'{model}_combined')
         r['all'] = average_precision_score(
             y_true=_ndarray_to_binary(results.ytrue),
             y_score=_ndarray_to_binary(results.ypred)
         )
 
         cls_info_50 = ' & '.join([f'{r[l]*100:.2f}' for l in cls_names+['all']])
-        s50.append(f'{pred} & {cls_info_50} & time \\\\ \\tabrowspace')
+        time_str = f'{(sum(timings, timedelta()) / len(timings)).total_seconds() * 1000:.1f}'
+        s50.append(f'{pred} & {cls_info_50} & {time_str} \\\\ \\tabrowspace')
         print(s50[-1])
 
         oafi_full.delete_sample_field(pred)
@@ -445,7 +469,9 @@ if __name__ == '__main__':
     # import_scrfd()
     # import_yunet()
 
+    create_table_map_classwise()
+
     # presision_recall_curve()
     # gen_tables()
 
-    oafi_iaa()
+    # oafi_iaa()
