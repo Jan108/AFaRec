@@ -113,7 +113,6 @@ def create_table_map(pretrained: bool = True):
 
         latency_path = res_path.parent / 'timing.txt'
         with latency_path.open('rt') as f:
-            f.readline()
             time_str = f'{str_to_timedelta(f.readline().strip()).total_seconds() * 1000:.1f}'
 
         cls_info_50 = ' & '.join([f'{r[l]*100:.2f}' for l in cls_names+['all']])

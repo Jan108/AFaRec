@@ -218,29 +218,40 @@ Done:
         - Face Ident
             - fig TPIR/FPIR neu -> threshold setzen
             - Tabelle threshold anpassen -> generieren
-            - seminar_fig_ hist_plot neu
+            - seminar_fig und hist_plot neu
     - go over all again and check: Result Face Rec left
     - GhostFaceNet on mlserv2, running arc-all done; cos-cat done;  cos with 256, arc with 256
     - SphereFace20 on vastai3, running eta ?
+    - find out how to load checkpoint and load epoch 45 for all -> loading works, no increase in AUC, ignored
+    - redo GhostFace and SphereFace Eval with 1000 images for latency
+    - adjust section 4.5.3 with correct measurement / task description
+    - write section 5.3
+    - write section 6.0 Intro Discussion
+    - write section 1.4 structure
+    - acknowledgements?
+    - write section 6.1 answer to RQ
+    - Talk with Tobi
+    - write section 6.2 open Challenges
+    - write section 6.3 Limitation
+    - write section 7 conclusion
+    - adjust Kurzzusammenfassung / translate to abstract
+    - Tabelle Hyperparameter Animal detectors
+    - Anmerkung Tobi einarbeiten
+    - Namen kursiv schreiben? -> no
+    - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
+    - mention amount of images for latency test face det / rec
+    - Read whole thing and check:
+        - Abbreviations
+        - names (e.g. unified system / unified pipeline)
+        - line breaks?
+    - latency for face detection models
 
 
 Heute:
-    - Talk with LeChat to eval 5.3 -> key points
-    - Talk with LeChat for Discussion -> key points
-    - Finish notes
 
-Morgen:
-    - redo GhostFace and SphereFace Eval with 1000 images for latency
-    - write section 5.3
-    - adjust section 4.5.3 with correct measurement
+Montag:
+    - code cleanup -> more like write good readme
+    - add annotations to repo
 
-Next Tasks:
-    - latency for face detection models
-    - reframe intro: Problem isn't solved, thats what I do -> problem not trivial
-    - Tobi Points
-        - make names cursive
+Optional Task:
     (- broken train-val-test split deterministic for OAFI)
-    (- find out how to load checkpoint and load epoch 45 for all)
-
-Fehler in Arbeit:
-    - Tabelle Hyperparameter Animal detectors 

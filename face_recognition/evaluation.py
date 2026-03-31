@@ -205,7 +205,7 @@ def table_acc_identification():
         r['tpir'], r['fpir'], r['acc'] = calc_tpir_fpir_acc(t_gen, df_merge)
 
         cls_info_gen = ' & '.join([f'{r[l]*100:.2f}' for l in cls_names + ['acc', 'tpir', 'fpir']])
-        s_general.append(f'{model_name} & {cls_info_gen} & {time_str} \\\\ \\tabrowspace')
+        s_general.append(f'{model_name} & {t_gen} & {cls_info_gen} & {time_str} \\\\ \\tabrowspace')
 
         # Special Models
         r = {}
@@ -232,12 +232,12 @@ def table_acc_identification():
 
         cls_info_spe = ' & '.join([f'{r[l]*100:.2f}' for l in cls_names + ['acc', 'tpir', 'fpir']])
         time_str = f'{(sum(timings, timedelta()) / len(timings)).total_seconds() * 1000:.1f}'
-        s_special.append(f'{model_name} & {cls_info_spe} & {time_str} \\\\ \\tabrowspace')
+        s_special.append(f'{model_name} & {t_spe} & {cls_info_spe} & {time_str} \\\\ \\tabrowspace')
 
     for s in s_general:
         print(s)
     print('\\midrule')
-    print('\\multicolumn{9}{c}{Specialized Models} \\\\')
+    print('\\multicolumn{10}{c}{Specialized Models} \\\\')
     print('\\midrule')
     for s in s_special:
         print(s)
@@ -423,11 +423,11 @@ if __name__ == '__main__':
     # print()
     # print()
     # print('Plot Distribution')
-    plot_dist()
+    # plot_dist()
     # print()
     # print('Plot TPIR/FPIR Gen')
     # plot_acc_threshold(50, generalized=True)
     # print('Plot TPIR/FPIR Spe')
     # plot_acc_threshold(50, generalized=False)
-    # table_acc_identification()
+    table_acc_identification()
     # plot_radar_topk()
