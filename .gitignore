@@ -1,6 +1,8 @@
 .idea/
 config.toml
 logs/
+work_dir*/
+runs/
 
 # standart gitignore template for python
 
