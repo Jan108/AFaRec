@@ -61,11 +61,13 @@ def create_all_datasets(export_dir: Path) -> None:
         export_dir / 'OpenAnimalImages', export_dir, name='OAFI_full', persistence=True)
 
 
-if __name__ == '__main__':
-    # create_all_datasets(Path('/mnt/data/afarec/data'))
-    # yunet_stuff()
-    # retinaface_import()
-    # oafi.export_labels_to_yunet(fo.load_dataset('OAFI_full'))
-
+def launch_app():
     session = fo.launch_app(address='0.0.0.0')
     session.wait(-1)
+
+
+
+if __name__ == '__main__':
+    create_all_datasets(Path('/mnt/data/afarec/data'))
+
+    launch_app()
